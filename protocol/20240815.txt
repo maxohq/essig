@@ -1,0 +1,121 @@
+I decided to trap exit messages:
+
+Process.flag(:trap_exit, true)
+
+This is the error message that I get when starting modules:
+
+{:error,
+ {:child_failure,
+  {:failed_to_start_child, {"app1", Children.Child1},
+   {:EXIT,
+    {%ArgumentError{message: "unknown registry: ChildRegistry"},
+     [
+       {Registry, :key_info!, 1, [file: ~c"lib/registry.ex", line: 1400]},
+       {Registry, :whereis_name, 2, [file: ~c"lib/registry.ex", line: 237]},
+       {:gen, :start, 6, [file: ~c"gen.erl", line: 108]},
+       {:supervisor, :do_start_child_i, 3,
+        [file: ~c"supervisor.erl", line: 959]},
+       {:supervisor, :do_start_child, 2, [file: ~c"supervisor.erl", line: 945]},
+       {:supervisor, :"-start_children/2-fun-0-", 3,
+        [file: ~c"supervisor.erl", line: 929]},
+       {:supervisor, :children_map, 4, [file: ~c"supervisor.erl", line: 1803]},
+       {:supervisor, :init_children, 2, [file: ~c"supervisor.erl", line: 889]}
+     ]}}}}}
+
+
+
+Well, because we are using `Supervisor.start_link`, any error is thrown into the current elixir process
+which terminates, when handling is not implemented. the try-rescue clause is useless in that case
+
+
+This code is causing issues:
+
+children =
+    Enum.map(modules, fn module ->
+      %{
+        id: {app_name, module},
+        start: {module, :start_link, [[]]}
+      }
+    end)
+
+children |> IO.inspect(label: :children)
+
+opts = [strategy: :one_for_one, name: supervisor_name]
+{:ok, pid} = Supervisor.start_link(children, opts) |> IO.inspect()
+
+The IEX console is restarted, without any error messages.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I want to start a predefined set of modules under a supervisor.
+The supervisor should be namescoped. The namescope name should be taken from the `Context.current_app()` function.
+
+Example:
+
+modules to supervise: [Children.Child1, Children.Child2]
+name: app1
+
+
+# set the global namespace token (can be accessed by child processes)
+Context.set_current_app("app1")
+# a (dynamic?) supervisor will be configured to run following modules, with process IDs namescoped global namespace
+Starter.supervise_modules([Children.Child1, Children.Child2])
+
+
+
+# it is possible to access the PIDs for each child by its module name (the namespace token is implicitly taken from the Context module)
+pid1 = ChildRegistry.get(Children.Child1)
+
+GenServer.call(pid1, :all) ## should be []
+GenServer.cast(pid1, {:push, 1})
+GenServer.cast(pid1, {:push, 2})
+
+GenServer.call(pid1, :all) ## should be [2,1]
+
+# it is possible to access the PIDs for each child by its module name (the namespace token is implicitly taken from the Context module)
+pid2 = ChildRegistry.get(Children.Child2)
+
+GenServer.cast(pid2, {:push, 3})
+GenServer.cast(pid2, {:push, 4})
+GenServer.call(pid2, :all) ## should be [4,3]
+
+
+## now I set a different global namespace token
+Context.set_current_app("app2")
+# this starts a NEW supervision tree for given modules and they DO not conflict with the previous ones.
+Starter.supervise_modules([Children.Child2])
+
+
+Module start should have:
+- supervise_modules(modules)
+  -> starts a supervisor (based on the global namespace token) + configures all children specs from the given modules list
+- stop_supervisor()
+  -> stops the current supervisor (based on the global namespace token)
+
+
+Implement it.
+
+
+
+
+
+
+
+
+
