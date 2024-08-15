@@ -10,18 +10,19 @@ defmodule Children.Child2 do
   end
 
   def push(element) do
-    pid = ChildRegistry.get(__MODULE__)
-    ResponseWrapper.cast(pid, {:push, element})
+    ResponseWrapper.cast(current_pid(), {:push, element})
   end
 
   def pop() do
-    pid = ChildRegistry.get(__MODULE__)
-    ResponseWrapper.call(pid, :pop)
+    ResponseWrapper.call(current_pid(), :pop)
   end
 
   def all() do
-    pid = ChildRegistry.get(__MODULE__)
-    ResponseWrapper.call(pid, :all)
+    ResponseWrapper.call(current_pid(), :all)
+  end
+
+  def current_pid do
+    ChildRegistry.get(__MODULE__)
   end
 
   # Callbacks
