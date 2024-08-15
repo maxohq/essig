@@ -35,8 +35,7 @@ defmodule Starter do
       new_children = children_specs(app_name, modules)
       add_children(supervisor_name, new_children)
     else
-      Logger.error("Supervisor not found. Start it first with supervise_modules/1")
-      {:error, :supervisor_not_found}
+      supervise_modules(modules)
     end
   end
 
@@ -64,9 +63,11 @@ defmodule Starter do
         {:ok, _pid} ->
           Logger.info("Started new child: #{inspect(child_spec.id)}")
           {status, [child_spec.id | started]}
+
         {:error, {:already_started, _pid}} ->
           Logger.info("Child already running: #{inspect(child_spec.id)}")
           {status, started}
+
         {:error, reason} ->
           Logger.error("Failed to start child #{inspect(child_spec.id)}: #{inspect(reason)}")
           {:error, started}
