@@ -1,4 +1,4 @@
-defmodule GenChild do
+defmodule GenHandler do
   defmacro __using__(_) do
     quote do
       use GenServer

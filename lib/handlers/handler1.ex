@@ -1,5 +1,5 @@
-defmodule Handlers.Handler2 do
-  use GenChild
+defmodule HandlersHandler1 do
+  use GenHandler
 
   def push(element) do
     ResponseWrapper.cast(current_pid(), {:push, element})

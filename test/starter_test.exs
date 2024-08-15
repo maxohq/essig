@@ -27,12 +27,12 @@ defmodule StarterTest do
 
   test "ensure_supervisor_running/0 starts the supervisor" do
     assert Process.whereis(Starter.supervisor_name()) == nil
-    Starter.add_modules([])
+    Starter.add_handlers([])
     assert Process.whereis(Starter.supervisor_name()) != nil
   end
 
-  test "add_modules/1 starts child processes", %{test_app: test_app} do
-    Starter.add_modules([HandlersHandler1, Handlers.Handler2])
+  test "add_handlers/1 starts child processes", %{test_app: test_app} do
+    Starter.add_handlers([HandlersHandler1, Handlers.Handler2])
 
     assert Process.alive?(ChildRegistry.get(HandlersHandler1))
     assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
@@ -50,12 +50,12 @@ defmodule StarterTest do
            end)
   end
 
-  test "remove_modules/1 stops and removes child processes", %{test_app: test_app} do
-    Starter.add_modules([HandlersHandler1, Handlers.Handler2])
+  test "remove_handlers/1 stops and removes child processes", %{test_app: test_app} do
+    Starter.add_handlers([HandlersHandler1, Handlers.Handler2])
     assert Process.alive?(ChildRegistry.get(HandlersHandler1))
     assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
-    Starter.remove_modules([HandlersHandler1, Handlers.Handler2])
+    Starter.remove_handlers([HandlersHandler1, Handlers.Handler2])
 
     assert eventually(fn -> ChildRegistry.get(HandlersHandler1) == nil end)
     assert eventually(fn -> ChildRegistry.get(Handlers.Handler2) == nil end)
@@ -74,49 +74,49 @@ defmodule StarterTest do
   end
 
   test "stop_supervisor/0 stops the supervisor" do
-    Starter.add_modules([])
+    Starter.add_handlers([])
     assert Process.whereis(Starter.supervisor_name()) != nil
 
     Starter.stop_supervisor()
     assert Process.whereis(Starter.supervisor_name()) == nil
   end
 
-  test "add_modules/1 logs when child is already started" do
-    Starter.add_modules([HandlersHandler1])
+  test "add_handlers/1 logs when child is already started" do
+    Starter.add_handlers([HandlersHandler1])
 
     log =
       capture_log(fn ->
-        Starter.add_modules([HandlersHandler1])
+        Starter.add_handlers([HandlersHandler1])
       end)
 
     assert log =~ "Child already running: {\"test_app_"
     assert log =~ ", HandlersHandler1}"
   end
 
-  test "remove_modules/1 logs when child is not found" do
-    Starter.add_modules([])
+  test "remove_handlers/1 logs when child is not found" do
+    Starter.add_handlers([])
 
     log =
       capture_log(fn ->
-        Starter.remove_modules([HandlersHandler1])
+        Starter.remove_handlers([HandlersHandler1])
       end)
 
     assert log =~ "Child not found: {\"test_app_"
     assert log =~ ", HandlersHandler1}"
   end
 
-  test "add_modules/1 and remove_modules/1 with multiple modules" do
-    Starter.add_modules([HandlersHandler1, Handlers.Handler2])
+  test "add_handlers/1 and remove_handlers/1 with multiple modules" do
+    Starter.add_handlers([HandlersHandler1, Handlers.Handler2])
 
     assert Process.alive?(ChildRegistry.get(HandlersHandler1))
     assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
-    Starter.remove_modules([HandlersHandler1])
+    Starter.remove_handlers([HandlersHandler1])
 
     assert eventually(fn -> ChildRegistry.get(HandlersHandler1) == nil end)
     assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
-    Starter.remove_modules([Handlers.Handler2])
+    Starter.remove_handlers([Handlers.Handler2])
 
     assert ChildRegistry.get(HandlersHandler1) == nil
     assert eventually(fn -> ChildRegistry.get(Handlers.Handler2) == nil end)
@@ -127,7 +127,7 @@ defmodule StarterTest do
 
     log =
       capture_log(fn ->
-        assert {:error, :missing_current_app} = Starter.add_modules([])
+        assert {:error, :missing_current_app} = Starter.add_handlers([])
       end)
 
     assert log =~ "Set the current app via Context.set_current_app()!"

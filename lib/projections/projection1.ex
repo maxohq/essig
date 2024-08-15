@@ -1,5 +1,5 @@
-defmodule HandlersHandler1 do
-  use GenChild
+defmodule Projections.Projection1 do
+  use GenProjection
 
   def push(element) do
     ResponseWrapper.cast(current_pid(), {:push, element})
