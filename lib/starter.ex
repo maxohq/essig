@@ -1,24 +1,27 @@
 defmodule Starter do
   require Logger
 
-  def stop_supervisor do
+  def supervisor_name do
     app_name = Context.current_app()
-    supervisor_name = String.to_atom("#{app_name}_Supervisor")
+    String.to_atom("#{app_name}_Supervisor")
+  end
+
+  def stop_supervisor do
+    supervisor_name = supervisor_name()
 
     if Process.whereis(supervisor_name) do
       Supervisor.stop(supervisor_name)
     end
   end
 
-  def supervise_modules(modules) do
-    app_name = Context.current_app()
-    supervisor_name = String.to_atom("#{app_name}_Supervisor")
-
-    children = children_specs(app_name, modules)
-    Logger.info("Children to be supervised: #{inspect(children)}")
-
-    if app_name != nil do
-      start_children(children, supervisor_name)
+  defp ensure_supervisor_running do
+    if Context.current_app() != nil do
+      if Process.whereis(supervisor_name()) do
+        nil
+      else
+        opts = [strategy: :one_for_one, name: supervisor_name()]
+        Supervisor.start_link([], opts)
+      end
     else
       Logger.error("Set the current app via Context.set_current_app()!")
     end
@@ -26,31 +29,12 @@ defmodule Starter do
 
   def add_modules(modules) do
     app_name = Context.current_app()
-    supervisor_name = String.to_atom("#{app_name}_Supervisor")
+    supervisor_name = supervisor_name()
+    ensure_supervisor_running()
 
     if Process.whereis(supervisor_name) do
       new_children = children_specs(app_name, modules)
       add_children(supervisor_name, new_children)
-    else
-      supervise_modules(modules)
-    end
-  end
-
-  defp start_children(children, supervisor_name) do
-    opts = [strategy: :one_for_one, name: supervisor_name]
-
-    case Supervisor.start_link(children, opts) do
-      {:ok, pid} ->
-        Logger.info("Supervisor started successfully with PID: #{inspect(pid)}")
-        {:ok, pid}
-
-      {:error, {:shutdown, reason}} ->
-        Logger.error("Failed to start supervisor due to child failure: #{inspect(reason)}")
-        {:error, {:child_failure, reason}}
-
-      {:error, reason} ->
-        Logger.error("Failed to start supervisor: #{inspect(reason)}")
-        {:error, reason}
     end
   end
 
