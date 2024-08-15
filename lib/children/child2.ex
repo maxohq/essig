@@ -1,13 +1,5 @@
 defmodule Children.Child2 do
-  use GenServer
-
-  def start_link(args) do
-    GenServer.start_link(__MODULE__, args, name: via_tuple())
-  end
-
-  defp via_tuple do
-    {:via, Registry, {ChildRegistry, {Context.current_app(), __MODULE__}}}
-  end
+  use GenChild
 
   def push(element) do
     ResponseWrapper.cast(current_pid(), {:push, element})
@@ -19,10 +11,6 @@ defmodule Children.Child2 do
 
   def all() do
     ResponseWrapper.call(current_pid(), :all)
-  end
-
-  def current_pid do
-    ChildRegistry.get(__MODULE__)
   end
 
   # Callbacks
