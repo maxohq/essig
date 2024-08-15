@@ -32,43 +32,43 @@ defmodule StarterTest do
   end
 
   test "add_modules/1 starts child processes", %{test_app: test_app} do
-    Starter.add_modules([Children.Child1, Children.Child2])
+    Starter.add_modules([HandlersHandler1, Handlers.Handler2])
 
-    assert Process.alive?(ChildRegistry.get(Children.Child1))
-    assert Process.alive?(ChildRegistry.get(Children.Child2))
+    assert Process.alive?(ChildRegistry.get(HandlersHandler1))
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
     children = Supervisor.which_children(Starter.supervisor_name())
 
     assert Enum.any?(children, fn
-             {{^test_app, Children.Child1}, _, _, _} -> true
+             {{^test_app, HandlersHandler1}, _, _, _} -> true
              _ -> false
            end)
 
     assert Enum.any?(children, fn
-             {{^test_app, Children.Child2}, _, _, _} -> true
+             {{^test_app, Handlers.Handler2}, _, _, _} -> true
              _ -> false
            end)
   end
 
   test "remove_modules/1 stops and removes child processes", %{test_app: test_app} do
-    Starter.add_modules([Children.Child1, Children.Child2])
-    assert Process.alive?(ChildRegistry.get(Children.Child1))
-    assert Process.alive?(ChildRegistry.get(Children.Child2))
+    Starter.add_modules([HandlersHandler1, Handlers.Handler2])
+    assert Process.alive?(ChildRegistry.get(HandlersHandler1))
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
-    Starter.remove_modules([Children.Child1, Children.Child2])
+    Starter.remove_modules([HandlersHandler1, Handlers.Handler2])
 
-    assert eventually(fn -> ChildRegistry.get(Children.Child1) == nil end)
-    assert eventually(fn -> ChildRegistry.get(Children.Child2) == nil end)
+    assert eventually(fn -> ChildRegistry.get(HandlersHandler1) == nil end)
+    assert eventually(fn -> ChildRegistry.get(Handlers.Handler2) == nil end)
 
     children = Supervisor.which_children(Starter.supervisor_name())
 
     refute Enum.any?(children, fn
-             {{^test_app, Children.Child1}, _, _, _} -> true
+             {{^test_app, HandlersHandler1}, _, _, _} -> true
              _ -> false
            end)
 
     refute Enum.any?(children, fn
-             {{^test_app, Children.Child2}, _, _, _} -> true
+             {{^test_app, Handlers.Handler2}, _, _, _} -> true
              _ -> false
            end)
   end
@@ -82,15 +82,15 @@ defmodule StarterTest do
   end
 
   test "add_modules/1 logs when child is already started" do
-    Starter.add_modules([Children.Child1])
+    Starter.add_modules([HandlersHandler1])
 
     log =
       capture_log(fn ->
-        Starter.add_modules([Children.Child1])
+        Starter.add_modules([HandlersHandler1])
       end)
 
     assert log =~ "Child already running: {\"test_app_"
-    assert log =~ ", Children.Child1}"
+    assert log =~ ", HandlersHandler1}"
   end
 
   test "remove_modules/1 logs when child is not found" do
@@ -98,28 +98,28 @@ defmodule StarterTest do
 
     log =
       capture_log(fn ->
-        Starter.remove_modules([Children.Child1])
+        Starter.remove_modules([HandlersHandler1])
       end)
 
     assert log =~ "Child not found: {\"test_app_"
-    assert log =~ ", Children.Child1}"
+    assert log =~ ", HandlersHandler1}"
   end
 
   test "add_modules/1 and remove_modules/1 with multiple modules" do
-    Starter.add_modules([Children.Child1, Children.Child2])
+    Starter.add_modules([HandlersHandler1, Handlers.Handler2])
 
-    assert Process.alive?(ChildRegistry.get(Children.Child1))
-    assert Process.alive?(ChildRegistry.get(Children.Child2))
+    assert Process.alive?(ChildRegistry.get(HandlersHandler1))
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
-    Starter.remove_modules([Children.Child1])
+    Starter.remove_modules([HandlersHandler1])
 
-    assert eventually(fn -> ChildRegistry.get(Children.Child1) == nil end)
-    assert Process.alive?(ChildRegistry.get(Children.Child2))
+    assert eventually(fn -> ChildRegistry.get(HandlersHandler1) == nil end)
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
-    Starter.remove_modules([Children.Child2])
+    Starter.remove_modules([Handlers.Handler2])
 
-    assert ChildRegistry.get(Children.Child1) == nil
-    assert eventually(fn -> ChildRegistry.get(Children.Child2) == nil end)
+    assert ChildRegistry.get(HandlersHandler1) == nil
+    assert eventually(fn -> ChildRegistry.get(Handlers.Handler2) == nil end)
   end
 
   test "ensure_supervisor_running/0 logs error when no current app is set" do

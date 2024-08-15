@@ -6,7 +6,7 @@ This is the error message that I get when starting modules:
 
 {:error,
  {:child_failure,
-  {:failed_to_start_child, {"app1", Children.Child1},
+  {:failed_to_start_child, {"app1", HandlersHandler1},
    {:EXIT,
     {%ArgumentError{message: "unknown registry: ChildRegistry"},
      [
@@ -68,19 +68,19 @@ The supervisor should be namescoped. The namescope name should be taken from the
 
 Example:
 
-modules to supervise: [Children.Child1, Children.Child2]
+modules to supervise: [HandlersHandler1, Handlers.Handler2]
 name: app1
 
 
 # set the global namespace token (can be accessed by child processes)
 Context.set_current_app("app1")
 # a (dynamic?) supervisor will be configured to run following modules, with process IDs namescoped global namespace
-Starter.supervise_modules([Children.Child1, Children.Child2])
+Starter.supervise_modules([HandlersHandler1, Handlers.Handler2])
 
 
 
 # it is possible to access the PIDs for each child by its module name (the namespace token is implicitly taken from the Context module)
-pid1 = ChildRegistry.get(Children.Child1)
+pid1 = ChildRegistry.get(HandlersHandler1)
 
 GenServer.call(pid1, :all) ## should be []
 GenServer.cast(pid1, {:push, 1})
@@ -89,7 +89,7 @@ GenServer.cast(pid1, {:push, 2})
 GenServer.call(pid1, :all) ## should be [2,1]
 
 # it is possible to access the PIDs for each child by its module name (the namespace token is implicitly taken from the Context module)
-pid2 = ChildRegistry.get(Children.Child2)
+pid2 = ChildRegistry.get(Handlers.Handler2)
 
 GenServer.cast(pid2, {:push, 3})
 GenServer.cast(pid2, {:push, 4})
@@ -99,7 +99,7 @@ GenServer.call(pid2, :all) ## should be [4,3]
 ## now I set a different global namespace token
 Context.set_current_app("app2")
 # this starts a NEW supervision tree for given modules and they DO not conflict with the previous ones.
-Starter.supervise_modules([Children.Child2])
+Starter.supervise_modules([Handlers.Handler2])
 
 
 Module start should have:

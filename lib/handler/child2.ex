@@ -1,4 +1,4 @@
-defmodule Children.Child1 do
+defmodule Handlers.Handler2 do
   use GenChild
 
   def push(element) do
