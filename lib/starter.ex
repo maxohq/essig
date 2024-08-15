@@ -15,15 +15,19 @@ defmodule Starter do
   end
 
   defp ensure_supervisor_running do
-    if Context.current_app() != nil do
-      if Process.whereis(supervisor_name()) do
-        nil
-      else
-        opts = [strategy: :one_for_one, name: supervisor_name()]
-        Supervisor.start_link([], opts)
-      end
-    else
-      Logger.error("Set the current app via Context.set_current_app()!")
+    cond do
+      Context.current_app() != nil ->
+        cond do
+          Process.whereis(supervisor_name()) ->
+            :ok
+
+          true ->
+            opts = [strategy: :one_for_one, name: supervisor_name()]
+            Supervisor.start_link([], opts)
+        end
+
+      true ->
+        Logger.error("Set the current app via Context.set_current_app()!")
     end
   end
 
@@ -59,10 +63,12 @@ defmodule Starter do
   def remove_modules(modules) do
     supervisor_name = supervisor_name()
 
-    if Process.whereis(supervisor_name()) do
-      remove_children(supervisor_name, modules)
-    else
-      Logger.warning("Supervisor not running: #{inspect(supervisor_name)}")
+    cond do
+      Process.whereis(supervisor_name()) ->
+        remove_children(supervisor_name, modules)
+
+      true ->
+        Logger.warning("Supervisor not running: #{inspect(supervisor_name)}")
     end
   end
 
@@ -79,9 +85,6 @@ defmodule Starter do
 
         {:error, :not_found} ->
           Logger.info("Child not found: #{inspect(child_id)}")
-
-        {:error, reason} ->
-          Logger.error("Failed to terminate child #{inspect(child_id)}: #{inspect(reason)}")
       end
     end)
   end
