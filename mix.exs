@@ -22,7 +22,8 @@ defmodule Supernamed.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:liveness, "~> 1.0.0"}
+      {:liveness, "~> 1.0.0"},
+      {:maxo_test_iex, "~> 0.1.7", only: [:test]}
     ]
   end
 end
