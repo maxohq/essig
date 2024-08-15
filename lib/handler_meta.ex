@@ -16,10 +16,12 @@ defmodule HandlerMeta do
 
   def update(module, new_data) do
     table_name = get_table_name()
+
     case :ets.lookup(table_name, module) do
       [{^module, existing_data}] ->
         updated_data = Map.merge(existing_data, new_data)
         :ets.insert(table_name, {module, updated_data})
+
       [] ->
         :ets.insert(table_name, {module, new_data})
     end
@@ -27,6 +29,7 @@ defmodule HandlerMeta do
 
   def get(module) do
     table_name = get_table_name()
+
     case :ets.lookup(table_name, module) do
       [{^module, data}] -> data
       [] -> nil
@@ -41,6 +44,12 @@ defmodule HandlerMeta do
   def delete_all do
     table_name = get_table_name()
     :ets.delete_all_objects(table_name)
+  end
+
+  def query(query_spec) do
+    table_name = get_table_name()
+    match_spec = EtsQuery.build_match_spec(query_spec)
+    :ets.select(table_name, match_spec)
   end
 
   defp get_table_name do
