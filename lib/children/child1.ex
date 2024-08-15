@@ -9,6 +9,21 @@ defmodule Children.Child1 do
     {:via, Registry, {ChildRegistry, {Context.current_app(), __MODULE__}}}
   end
 
+  def push(element) do
+    pid = ChildRegistry.get(__MODULE__)
+    ResponseWrapper.cast(pid, {:push, element})
+  end
+
+  def pop() do
+    pid = ChildRegistry.get(__MODULE__)
+    ResponseWrapper.call(pid, :pop)
+  end
+
+  def all() do
+    pid = ChildRegistry.get(__MODULE__)
+    ResponseWrapper.call(pid, :all)
+  end
+
   # Callbacks
 
   @impl true
@@ -17,6 +32,10 @@ defmodule Children.Child1 do
   end
 
   @impl true
+  def handle_call(:pop, _from, []) do
+    {:reply, nil, []}
+  end
+
   def handle_call(:pop, _from, [head | tail]) do
     {:reply, head, tail}
   end
