@@ -1,0 +1,3 @@
+%{
+  "liveness": {:hex, :liveness, "1.0.0", "6b79563a6d97b6764be4cbb6df3b667ce0de4ea5398984287b933b889114d529", [:mix], [], "hexpm", "a196030f7b0707c392fe5d3b8cd74ec161b67e0b270b3fa76abe10426e0a5040"},
+}
