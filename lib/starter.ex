@@ -56,6 +56,36 @@ defmodule Starter do
     end)
   end
 
+  def remove_modules(modules) do
+    supervisor_name = supervisor_name()
+
+    if Process.whereis(supervisor_name()) do
+      remove_children(supervisor_name, modules)
+    else
+      Logger.warning("Supervisor not running: #{inspect(supervisor_name)}")
+    end
+  end
+
+  defp remove_children(supervisor_name, modules) do
+    app_name = Context.current_app()
+
+    Enum.each(modules, fn module ->
+      child_id = {app_name, module}
+
+      case Supervisor.terminate_child(supervisor_name, child_id) do
+        :ok ->
+          Logger.info("Terminated child: #{inspect(child_id)}")
+          Supervisor.delete_child(supervisor_name, child_id)
+
+        {:error, :not_found} ->
+          Logger.info("Child not found: #{inspect(child_id)}")
+
+        {:error, reason} ->
+          Logger.error("Failed to terminate child #{inspect(child_id)}: #{inspect(reason)}")
+      end
+    end)
+  end
+
   defp children_specs(app_name, modules) do
     Enum.map(modules, fn module ->
       %{
@@ -63,30 +93,5 @@ defmodule Starter do
         start: {module, :start_link, [[]]}
       }
     end)
-  end
-
-  def remove_modules(modules) do
-    app_name = Context.current_app()
-    supervisor_name = supervisor_name()
-
-    if Process.whereis(supervisor_name) do
-      Enum.each(modules, fn module ->
-        child_id = {app_name, module}
-
-        case Supervisor.terminate_child(supervisor_name, child_id) do
-          :ok ->
-            Logger.info("Terminated child: #{inspect(child_id)}")
-            Supervisor.delete_child(supervisor_name, child_id)
-
-          {:error, :not_found} ->
-            Logger.info("Child not found: #{inspect(child_id)}")
-
-          {:error, reason} ->
-            Logger.error("Failed to terminate child #{inspect(child_id)}: #{inspect(reason)}")
-        end
-      end)
-    else
-      Logger.warning("Supervisor not running: #{inspect(supervisor_name)}")
-    end
   end
 end
