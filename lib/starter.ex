@@ -14,9 +14,6 @@ defmodule Starter do
     app_name = Context.current_app()
     supervisor_name = String.to_atom("#{app_name}_Supervisor")
 
-    # Ensure ChildRegistry is started
-    ChildRegistry.ensure_started()
-
     children = children_specs(app_name, modules)
     Logger.info("Children to be supervised: #{inspect(children)}")
 

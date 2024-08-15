@@ -13,18 +13,4 @@ defmodule ChildRegistry do
       [] -> nil
     end
   end
-
-  def ensure_started do
-    case Registry.start_link(keys: :unique, name: ChildRegistry) do
-      {:ok, _} ->
-        :ok
-
-      {:error, {:already_started, _}} ->
-        :ok
-
-      error ->
-        Logger.error("Failed to start ChildRegistry: #{inspect(error)}")
-        throw({:error, :registry_start_failed})
-    end
-  end
 end
