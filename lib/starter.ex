@@ -3,6 +3,7 @@ defmodule Starter do
   def stop_supervisor, do: Starter.Supervisor.stop_supervisor()
 
   def add_handlers(modules) do
+    HandlerMeta.init()
     Starter.Handlers.add_handlers(modules)
   end
 

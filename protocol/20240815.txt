@@ -1,3 +1,30 @@
+
+
+ProjectionMeta.init()
+ProjectionMeta.set(module, data)
+ProjectionMeta.update(module, data)
+ProjectionMeta.get(module)
+
+
+I would like to have a way to attach an updateable datastructure to a module name.
+Use ETS tables for this. Also use `Context.current_app()` for the ETS table name, to provide namescoping based on the current_app across different ETS tables.
+
+It should have following API:
+- HandlerMeta.init(): initializes the ETS table for the current `Context.current_app()`
+- HandlerMeta.set(module, data): sets the `data` for a module name (primary key)
+- HandlerMeta.update(module, data): updates the `data` for a module name (primary key) (merges with existing values!)
+- HandlerMeta.get(module) : get the data for a module name
+- HandlerMeta.all(): returns a list of {key, data} tuples
+- HandlerMeta.delete_all(): removes all values from the underlying ETS table
+
+
+
+Now please generate a comprehensive unit test for the HandlerMeta module
+
+---------------------------
+
+
+
 I decided to trap exit messages:
 
 Process.flag(:trap_exit, true)

@@ -8,5 +8,5 @@ ExUnit.after_suite(fn _ ->
   Context.set_current_app(nil)
 end)
 
-# Ensure ChildRegistry is started for tests
+# Ensure Supernamed application is started for tests
 Application.ensure_all_started(:supernamed)
