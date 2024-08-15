@@ -4,6 +4,9 @@ defmodule StarterTest do
   require Logger
   import Liveness
 
+  # remove noisy logs!
+  @moduletag capture_log: true
+
   setup do
     # Set up a test app context
     test_app = "test_app_#{:rand.uniform(1000)}"
