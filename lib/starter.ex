@@ -18,8 +18,8 @@ defmodule Starter do
     cond do
       Context.current_app() != nil ->
         cond do
-          Process.whereis(supervisor_name()) ->
-            :ok
+          pid = Process.whereis(supervisor_name()) ->
+            {:ok, pid}
 
           true ->
             opts = [strategy: :one_for_one, name: supervisor_name()]
@@ -28,17 +28,21 @@ defmodule Starter do
 
       true ->
         Logger.error("Set the current app via Context.set_current_app()!")
+        {:error, :missing_current_app}
     end
   end
 
   def add_modules(modules) do
     app_name = Context.current_app()
     supervisor_name = supervisor_name()
-    ensure_supervisor_running()
 
-    if Process.whereis(supervisor_name) do
-      new_children = children_specs(app_name, modules)
-      add_children(supervisor_name, new_children)
+    case ensure_supervisor_running() do
+      {:ok, _pid} ->
+        new_children = children_specs(app_name, modules)
+        add_children(supervisor_name, new_children)
+
+      {:error, :missing_current_app} ->
+        {:error, :missing_current_app}
     end
   end
 

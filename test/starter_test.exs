@@ -127,7 +127,7 @@ defmodule StarterTest do
 
     log =
       capture_log(fn ->
-        Starter.add_modules([])
+        assert {:error, :missing_current_app} = Starter.add_modules([])
       end)
 
     assert log =~ "Set the current app via Context.set_current_app()!"
