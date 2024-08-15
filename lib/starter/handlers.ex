@@ -16,6 +16,20 @@ defmodule Starter.Handlers do
     end
   end
 
+  def remove_handlers(modules) do
+    supervisor_name = StSup.supervisor_name()
+
+    cond do
+      Process.whereis(StSup.supervisor_name()) ->
+        remove_children(supervisor_name, modules)
+
+      true ->
+        Logger.warning("Supervisor not running: #{inspect(supervisor_name)}")
+    end
+  end
+
+  ########## Private ##############
+
   defp add_children(supervisor_name, new_children) do
     Enum.reduce(new_children, {:ok, []}, fn child_spec, {status, started} ->
       case Supervisor.start_child(supervisor_name, child_spec) do
@@ -32,18 +46,6 @@ defmodule Starter.Handlers do
           {:error, started}
       end
     end)
-  end
-
-  def remove_handlers(modules) do
-    supervisor_name = StSup.supervisor_name()
-
-    cond do
-      Process.whereis(StSup.supervisor_name()) ->
-        remove_children(supervisor_name, modules)
-
-      true ->
-        Logger.warning("Supervisor not running: #{inspect(supervisor_name)}")
-    end
   end
 
   defp remove_children(supervisor_name, modules) do
