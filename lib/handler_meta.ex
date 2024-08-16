@@ -48,7 +48,7 @@ defmodule HandlerMeta do
 
   def query(query_spec) do
     table_name = get_table_name()
-    match_spec = EtsQuery.build_match_spec(query_spec)
+    match_spec = EtsSelect.build(query_spec)
     :ets.select(table_name, match_spec)
   end
 

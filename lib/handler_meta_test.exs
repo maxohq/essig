@@ -65,48 +65,54 @@ defmodule HandlerMetaTest do
     assert HandlerMeta.all() == []
   end
 
-  # test "query/1 with OR condition" do
-  #   HandlerMeta.init()
-  #   HandlerMeta.set(TestModule1, %{status: :new})
-  #   HandlerMeta.set(TestModule2, %{status: :ready})
-  #   HandlerMeta.set(TestModule3, %{status: :backfilling})
+  test "query/1 with OR condition" do
+    HandlerMeta.init()
+    HandlerMeta.set(TestModule1, %{status: :new})
+    HandlerMeta.set(TestModule2, %{status: :ready})
+    HandlerMeta.set(TestModule3, %{status: :backfilling})
 
-  #   result = HandlerMeta.query(%{or: [%{status: :new}, %{status: :backfilling}]})
-  #   assert length(result) == 2
-  #   assert Enum.any?(result, fn {module, data} -> module == TestModule1 and data.status == :new end)
-  #   assert Enum.any?(result, fn {module, data} -> module == TestModule3 and data.status == :backfilling end)
-  # end
+    result = HandlerMeta.query(%{or: [[:=, :status, :new], [:=, :status, :backfilling]]})
+    assert length(result) == 2
 
-  # test "query/1 with AND condition" do
-  #   HandlerMeta.init()
-  #   HandlerMeta.set(TestModule1, %{status: :ready, type: :handler})
-  #   HandlerMeta.set(TestModule2, %{status: :ready, type: :projection})
-  #   HandlerMeta.set(TestModule3, %{status: :new, type: :handler})
+    assert Enum.any?(result, fn {module, data} ->
+             module == TestModule1 and data.status == :new
+           end)
 
-  #   result = HandlerMeta.query(%{and: [%{status: :ready}, %{type: :handler}]})
-  #   assert length(result) == 1
-  #   assert Enum.at(result, 0) == {TestModule1, %{status: :ready, type: :handler}}
-  # end
+    assert Enum.any?(result, fn {module, data} ->
+             module == TestModule3 and data.status == :backfilling
+           end)
+  end
 
-  # test "query/1 with implicit AND condition" do
-  #   HandlerMeta.init()
-  #   HandlerMeta.set(TestModule1, %{status: :ready})
-  #   HandlerMeta.set(TestModule2, %{status: :new})
+  test "query/1 with AND condition" do
+    HandlerMeta.init()
+    HandlerMeta.set(TestModule1, %{status: :ready, type: :handler})
+    HandlerMeta.set(TestModule2, %{status: :ready, type: :projection})
+    HandlerMeta.set(TestModule3, %{status: :new, type: :handler})
 
-  #   result = HandlerMeta.query(%{status: :ready})
-  #   assert length(result) == 1
-  #   assert Enum.at(result, 0) == {TestModule1, %{status: :ready}}
-  # end
+    result = HandlerMeta.query(%{and: [%{status: :ready}, %{type: :handler}]})
+    assert length(result) == 1
+    assert Enum.at(result, 0) == {TestModule1, %{status: :ready, type: :handler}}
+  end
 
-  # test "query/1 with alternative syntax" do
-  #   HandlerMeta.init()
-  #   HandlerMeta.set(TestModule1, %{status: :new})
-  #   HandlerMeta.set(TestModule2, %{status: :ready})
+  test "query/1 with implicit AND condition" do
+    HandlerMeta.init()
+    HandlerMeta.set(TestModule1, %{status: :ready})
+    HandlerMeta.set(TestModule2, %{status: :new})
 
-  #   result = HandlerMeta.query([:and, [status: :new]])
-  #   assert length(result) == 1
-  #   assert Enum.at(result, 0) == {TestModule1, %{status: :new}}
-  # end
+    result = HandlerMeta.query(%{status: :ready})
+    assert length(result) == 1
+    assert Enum.at(result, 0) == {TestModule1, %{status: :ready}}
+  end
+
+  test "query/1 with alternative syntax" do
+    HandlerMeta.init()
+    HandlerMeta.set(TestModule1, %{status: :new})
+    HandlerMeta.set(TestModule2, %{status: :ready})
+
+    result = HandlerMeta.query(%{and: [%{status: :new}]})
+    assert length(result) == 1
+    assert Enum.at(result, 0) == {TestModule1, %{status: :new}}
+  end
 
   test "operations with different app contexts", %{test_app: test_app} do
     HandlerMeta.init()
