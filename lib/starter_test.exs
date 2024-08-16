@@ -122,6 +122,27 @@ defmodule StarterTest do
     assert eventually(fn -> ChildRegistry.get(Handlers.Handler2) == nil end)
   end
 
+  test "add_handlers/1 and remove_handlers/1 also propagate to HandlersMeta" do
+    Starter.add_handlers([Handlers.Handler1, Handlers.Handler2])
+
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler1))
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
+
+    assert HandlerMeta.get(Handlers.Handler1)
+    assert HandlerMeta.get(Handlers.Handler2)
+    refute HandlerMeta.get(Handlers.Handler3)
+
+    Starter.remove_handlers([Handlers.Handler1])
+    refute HandlerMeta.get(Handlers.Handler1)
+
+    assert eventually(fn -> ChildRegistry.get(Handlers.Handler1) == nil end)
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
+
+    Starter.remove_handlers([Handlers.Handler2])
+    refute HandlerMeta.get(Handlers.Handler2)
+    assert eventually(fn -> ChildRegistry.get(Handlers.Handler2) == nil end)
+  end
+
   test "ensure_supervisor_running/0 logs error when no current app is set" do
     Context.set_current_app(nil)
 
