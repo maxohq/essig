@@ -16,6 +16,7 @@ defmodule HandlerMeta do
 
   def set(module, data) do
     table_name = get_table_name()
+    data = Map.put(data, :key, module)
     :ets.insert(table_name, {module, data})
   end
 
@@ -28,6 +29,7 @@ defmodule HandlerMeta do
         :ets.insert(table_name, {module, updated_data})
 
       [] ->
+        new_data = Map.put(new_data, :key, module)
         :ets.insert(table_name, {module, new_data})
     end
   end
