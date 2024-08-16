@@ -1,4 +1,4 @@
-defmodule HandlersHandler1 do
+defmodule Handlers.Handler1 do
   use GenHandler
 
   def push(element) do

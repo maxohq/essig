@@ -3,10 +3,12 @@ defmodule Starter do
   def stop_supervisor, do: Starter.Supervisor.stop_supervisor()
 
   def add_handlers(modules) do
+    Context.assert_current_app!()
     Starter.Handlers.add_handlers(modules)
   end
 
   def remove_handlers(modules) do
+    Context.assert_current_app!()
     Starter.Handlers.remove_handlers(modules)
   end
 end
