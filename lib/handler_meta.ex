@@ -6,9 +6,12 @@ defmodule HandlerMeta do
 
   def init do
     table_name = get_table_name()
+
     if :ets.whereis(table_name) == :undefined do
       :ets.new(table_name, [:set, :public, :named_table])
     end
+
+    table_name
   end
 
   def set(module, data) do

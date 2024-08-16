@@ -21,6 +21,12 @@ defmodule HandlerMetaTest do
     assert :ets.info(String.to_atom("#{test_app}_handler_meta")) != :undefined
   end
 
+  test "repeated init/0 does not raise", %{test_app: test_app} do
+    name = HandlerMeta.init()
+    assert name == HandlerMeta.init()
+    assert :ets.info(String.to_atom("#{test_app}_handler_meta")) != :undefined
+  end
+
   test "set/2 inserts data into the ETS table" do
     HandlerMeta.init()
     HandlerMeta.set(TestModule, %{key: "value"})
