@@ -32,15 +32,15 @@ defmodule StarterTest do
   end
 
   test "add_handlers/1 starts child processes", %{test_app: test_app} do
-    Starter.add_handlers([HandlersHandler1, Handlers.Handler2])
+    Starter.add_handlers([Handlers.Handler1, Handlers.Handler2])
 
-    assert Process.alive?(ChildRegistry.get(HandlersHandler1))
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler1))
     assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
     children = Supervisor.which_children(Starter.supervisor_name())
 
     assert Enum.any?(children, fn
-             {{^test_app, HandlersHandler1}, _, _, _} -> true
+             {{^test_app, Handlers.Handler1}, _, _, _} -> true
              _ -> false
            end)
 
@@ -51,19 +51,19 @@ defmodule StarterTest do
   end
 
   test "remove_handlers/1 stops and removes child processes", %{test_app: test_app} do
-    Starter.add_handlers([HandlersHandler1, Handlers.Handler2])
-    assert Process.alive?(ChildRegistry.get(HandlersHandler1))
+    Starter.add_handlers([Handlers.Handler1, Handlers.Handler2])
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler1))
     assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
-    Starter.remove_handlers([HandlersHandler1, Handlers.Handler2])
+    Starter.remove_handlers([Handlers.Handler1, Handlers.Handler2])
 
-    assert eventually(fn -> ChildRegistry.get(HandlersHandler1) == nil end)
+    assert eventually(fn -> ChildRegistry.get(Handlers.Handler1) == nil end)
     assert eventually(fn -> ChildRegistry.get(Handlers.Handler2) == nil end)
 
     children = Supervisor.which_children(Starter.supervisor_name())
 
     refute Enum.any?(children, fn
-             {{^test_app, HandlersHandler1}, _, _, _} -> true
+             {{^test_app, Handlers.Handler1}, _, _, _} -> true
              _ -> false
            end)
 
@@ -82,15 +82,15 @@ defmodule StarterTest do
   end
 
   test "add_handlers/1 logs when child is already started" do
-    Starter.add_handlers([HandlersHandler1])
+    Starter.add_handlers([Handlers.Handler1])
 
     log =
       capture_log(fn ->
-        Starter.add_handlers([HandlersHandler1])
+        Starter.add_handlers([Handlers.Handler1])
       end)
 
     assert log =~ "Child already running: {\"test_app_"
-    assert log =~ ", HandlersHandler1}"
+    assert log =~ ", Handlers.Handler1}"
   end
 
   test "remove_handlers/1 logs when child is not found" do
@@ -98,38 +98,37 @@ defmodule StarterTest do
 
     log =
       capture_log(fn ->
-        Starter.remove_handlers([HandlersHandler1])
+        Starter.remove_handlers([Handlers.Handler1])
       end)
 
     assert log =~ "Child not found: {\"test_app_"
-    assert log =~ ", HandlersHandler1}"
+    assert log =~ ", Handlers.Handler1}"
   end
 
   test "add_handlers/1 and remove_handlers/1 with multiple modules" do
-    Starter.add_handlers([HandlersHandler1, Handlers.Handler2])
+    Starter.add_handlers([Handlers.Handler1, Handlers.Handler2])
 
-    assert Process.alive?(ChildRegistry.get(HandlersHandler1))
+    assert Process.alive?(ChildRegistry.get(Handlers.Handler1))
     assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
-    Starter.remove_handlers([HandlersHandler1])
+    Starter.remove_handlers([Handlers.Handler1])
 
-    assert eventually(fn -> ChildRegistry.get(HandlersHandler1) == nil end)
+    assert eventually(fn -> ChildRegistry.get(Handlers.Handler1) == nil end)
     assert Process.alive?(ChildRegistry.get(Handlers.Handler2))
 
     Starter.remove_handlers([Handlers.Handler2])
 
-    assert ChildRegistry.get(HandlersHandler1) == nil
+    assert ChildRegistry.get(Handlers.Handler1) == nil
     assert eventually(fn -> ChildRegistry.get(Handlers.Handler2) == nil end)
   end
 
   test "ensure_supervisor_running/0 logs error when no current app is set" do
     Context.set_current_app(nil)
 
-    log =
-      capture_log(fn ->
-        assert {:error, :missing_current_app} = Starter.add_handlers([])
-      end)
-
-    assert log =~ "Set the current app via Context.set_current_app()!"
+    assert_raise RuntimeError,
+                 "Missing current_app, set via: Context.set_current_app(uuid)!",
+                 fn ->
+                   Starter.add_handlers([])
+                 end
   end
 end

@@ -33,7 +33,7 @@ This is the error message that I get when starting modules:
 
 {:error,
  {:child_failure,
-  {:failed_to_start_child, {"app1", HandlersHandler1},
+  {:failed_to_start_child, {"app1", Handlers.Handler1},
    {:EXIT,
     {%ArgumentError{message: "unknown registry: ChildRegistry"},
      [
@@ -95,19 +95,19 @@ The supervisor should be namescoped. The namescope name should be taken from the
 
 Example:
 
-modules to supervise: [HandlersHandler1, Handlers.Handler2]
+modules to supervise: [Handlers.Handler1, Handlers.Handler2]
 name: app1
 
 
 # set the global namespace token (can be accessed by child processes)
 Context.set_current_app("app1")
 # a (dynamic?) supervisor will be configured to run following modules, with process IDs namescoped global namespace
-Starter.supervise_modules([HandlersHandler1, Handlers.Handler2])
+Starter.supervise_modules([Handlers.Handler1, Handlers.Handler2])
 
 
 
 # it is possible to access the PIDs for each child by its module name (the namespace token is implicitly taken from the Context module)
-pid1 = ChildRegistry.get(HandlersHandler1)
+pid1 = ChildRegistry.get(Handlers.Handler1)
 
 GenServer.call(pid1, :all) ## should be []
 GenServer.cast(pid1, {:push, 1})
