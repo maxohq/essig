@@ -1,5 +1,6 @@
 %{
   "bunt": {:hex, :bunt, "0.2.1", "e2d4792f7bc0ced7583ab54922808919518d0e57ee162901a16a1b6664ef3b14", [:mix], [], "hexpm", "a330bfb4245239787b15005e66ae6845c9cd524a288f0d141c148b02603777a5"},
+  "ets_select": {:hex, :ets_select, "0.1.2", "f811d46b94813dacb885f65ed1854312f8f33e665cf032eb54f8e5ac9fe34f03", [:mix], [], "hexpm", "be2a4ef3da782f7203a5155fb0313df81b9b94b344d2ed89605e9a2e74063c09"},
   "file_system": {:hex, :file_system, "1.0.0", "b689cc7dcee665f774de94b5a832e578bd7963c8e637ef940cd44327db7de2cd", [:mix], [], "hexpm", "6752092d66aec5a10e662aefeed8ddb9531d79db0bc145bb8c40325ca1d8536d"},
   "liveness": {:hex, :liveness, "1.0.0", "6b79563a6d97b6764be4cbb6df3b667ce0de4ea5398984287b933b889114d529", [:mix], [], "hexpm", "a196030f7b0707c392fe5d3b8cd74ec161b67e0b270b3fa76abe10426e0a5040"},
   "maxo_test_iex": {:hex, :maxo_test_iex, "0.1.7", "cc8ad43afab1284fce607dd9d5419b4d8e6fc66a5da5972ba1aa966cdca581ac", [:mix], [{:bunt, "~> 0.2", [hex: :bunt, repo: "hexpm", optional: false]}, {:file_system, "~> 1.0", [hex: :file_system, repo: "hexpm", optional: false]}], "hexpm", "f15ffb1d736b8d9a762a9c2db71ca1afb79e75a4c037f0ade0dd688f17ff5a2a"},
