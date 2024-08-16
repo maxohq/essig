@@ -48,6 +48,11 @@ defmodule HandlerMeta do
     :ets.tab2list(table_name)
   end
 
+  def delete(module) do
+    table_name = get_table_name()
+    :ets.delete(table_name, module)
+  end
+
   def delete_all do
     table_name = get_table_name()
     :ets.delete_all_objects(table_name)

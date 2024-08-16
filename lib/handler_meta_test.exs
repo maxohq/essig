@@ -69,6 +69,21 @@ defmodule HandlerMetaTest do
     assert HandlerMeta.all() == []
   end
 
+  test "delete/1 removes a specific entry from the ETS table" do
+    HandlerMeta.init()
+    HandlerMeta.set(TestModule1, %{key1: "value1"})
+    HandlerMeta.set(TestModule2, %{key2: "value2"})
+
+    HandlerMeta.delete(TestModule1)
+    assert HandlerMeta.get(TestModule1) == nil
+    assert HandlerMeta.get(TestModule2) == %{key2: "value2", key: TestModule2}
+  end
+
+  test "delete/1 does not raise an error when deleting a non-existent entry" do
+    HandlerMeta.init()
+    assert HandlerMeta.delete(NonExistentModule) == true
+  end
+
   test "query/1 with OR condition" do
     HandlerMeta.init()
     HandlerMeta.set(TestModule1, %{status: :new})
