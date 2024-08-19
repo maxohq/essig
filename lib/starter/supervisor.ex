@@ -2,8 +2,8 @@ defmodule Starter.Supervisor do
   require Logger
 
   def supervisor_name do
-    app_name = Context.current_app()
-    String.to_atom("#{app_name}_Supervisor")
+    scope_name = Context.current_scope()
+    String.to_atom("#{scope_name}_Supervisor")
   end
 
   def stop_supervisor do
@@ -16,7 +16,7 @@ defmodule Starter.Supervisor do
 
   def ensure_supervisor_running do
     cond do
-      Context.current_app() != nil ->
+      Context.current_scope() != nil ->
         cond do
           pid = Process.whereis(supervisor_name()) ->
             {:ok, pid}
@@ -27,8 +27,8 @@ defmodule Starter.Supervisor do
         end
 
       true ->
-        Logger.error("Set the current app via Context.set_current_app()!")
-        {:error, :missing_current_app}
+        Logger.error("Set the current app via Context.set_current_scope()!")
+        {:error, :missing_current_scope}
     end
   end
 end

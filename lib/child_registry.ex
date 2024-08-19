@@ -1,14 +1,14 @@
 defmodule ChildRegistry do
   require Logger
 
-  def register({app_name, module}, pid) do
-    Registry.register(__MODULE__, {app_name, module}, pid)
+  def register({scope_name, module}, pid) do
+    Registry.register(__MODULE__, {scope_name, module}, pid)
   end
 
   def get(module) do
-    app_name = Context.current_app()
+    scope_name = Context.current_scope()
 
-    case Registry.lookup(__MODULE__, {app_name, module}) do
+    case Registry.lookup(__MODULE__, {scope_name, module}) do
       [{pid, _}] -> pid
       [] -> nil
     end

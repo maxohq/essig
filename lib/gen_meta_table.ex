@@ -11,7 +11,7 @@ defmodule GenMetaTable do
       """
 
       def init do
-        Context.assert_current_app!()
+        Context.assert_current_scope!()
         table_name = get_table_name()
 
         if :ets.whereis(table_name) == :undefined do
@@ -72,8 +72,8 @@ defmodule GenMetaTable do
       end
 
       defp get_table_name do
-        app_name = Context.current_app()
-        String.to_atom("#{app_name}_#{@table_kind}")
+        scope_name = Context.current_scope()
+        String.to_atom("#{scope_name}_#{@table_kind}")
       end
     end
   end

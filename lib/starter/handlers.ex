@@ -3,16 +3,16 @@ defmodule Starter.Handlers do
   require Logger
 
   def add_handlers(modules) do
-    app_name = Context.current_app()
+    scope_name = Context.current_scope()
     supervisor_name = StSup.supervisor_name()
 
     case StSup.ensure_supervisor_running() do
       {:ok, _pid} ->
-        new_children = children_specs(app_name, modules)
+        new_children = children_specs(scope_name, modules)
         add_children(supervisor_name, new_children)
 
-      {:error, :missing_current_app} ->
-        {:error, :missing_current_app}
+      {:error, :missing_current_scope} ->
+        {:error, :missing_current_scope}
     end
   end
 
@@ -49,10 +49,10 @@ defmodule Starter.Handlers do
   end
 
   defp remove_children(supervisor_name, modules) do
-    app_name = Context.current_app()
+    scope_name = Context.current_scope()
 
     Enum.each(modules, fn module ->
-      child_id = {app_name, module}
+      child_id = {scope_name, module}
 
       case Supervisor.terminate_child(supervisor_name, child_id) do
         :ok ->
@@ -65,10 +65,10 @@ defmodule Starter.Handlers do
     end)
   end
 
-  defp children_specs(app_name, modules) do
+  defp children_specs(scope_name, modules) do
     Enum.map(modules, fn module ->
       %{
-        id: {app_name, module},
+        id: {scope_name, module},
         start: {module, :start_link, [[]]}
       }
     end)

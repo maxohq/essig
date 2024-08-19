@@ -3,7 +3,7 @@ defmodule SeqCheckerTest do
 
   describe "check_reached/2" do
     setup do
-      Context.set_current_app("app1")
+      Context.set_current_scope("app1")
       HandlerMeta.init()
       :ok
     end

@@ -8,7 +8,7 @@ defmodule GenProjection do
       end
 
       defp via_tuple do
-        {:via, Registry, {ChildRegistry, {Context.current_app(), __MODULE__}}}
+        {:via, Registry, {ChildRegistry, {Context.current_scope(), __MODULE__}}}
       end
 
       def current_pid do

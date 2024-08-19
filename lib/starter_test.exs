@@ -10,12 +10,12 @@ defmodule StarterTest do
   setup do
     # Set up a test app context
     test_app = "test_app_#{:rand.uniform(1000)}"
-    Context.set_current_app(test_app)
+    Context.set_current_scope(test_app)
 
     on_exit(fn ->
       # Clean up after each test
       Starter.stop_supervisor()
-      Context.set_current_app(nil)
+      Context.set_current_scope(nil)
     end)
 
     %{test_app: test_app}
@@ -144,10 +144,10 @@ defmodule StarterTest do
   end
 
   test "ensure_supervisor_running/0 logs error when no current app is set" do
-    Context.set_current_app(nil)
+    Context.set_current_scope(nil)
 
     assert_raise RuntimeError,
-                 "Missing current_app, set via: Context.set_current_app(uuid)!",
+                 "Missing current_scope, set via: Context.set_current_scope(uuid)!",
                  fn ->
                    Starter.add_handlers([])
                  end

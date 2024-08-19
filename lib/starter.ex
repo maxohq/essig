@@ -6,7 +6,7 @@ defmodule Starter do
     ensure_started!()
 
     with {:ok, list} <- Starter.Handlers.add_handlers(modules) do
-      Enum.map(list, fn {_app_name, module} ->
+      Enum.map(list, fn {_scope_name, module} ->
         HandlerMeta.update(module, %{})
       end)
     end
@@ -22,7 +22,7 @@ defmodule Starter do
   end
 
   defp ensure_started! do
-    Context.assert_current_app!()
+    Context.assert_current_scope!()
     HandlerMeta.init()
   end
 end
