@@ -5,7 +5,7 @@ defmodule Starter do
   def add_handlers(modules) do
     ensure_started!()
 
-    with {:ok, list} <- Starter.Handlers.add_handlers(modules) |> IO.inspect() do
+    with {:ok, list} <- Starter.Handlers.add_handlers(modules) do
       Enum.map(list, fn {_app_name, module} ->
         HandlerMeta.update(module, %{})
       end)
