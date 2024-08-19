@@ -26,6 +26,7 @@ defmodule Supernamed.MixProject do
     [
       {:liveness, "~> 1.0.0"},
       {:ets_select, "~> 0.1.2"},
+      {:data_tracer, "~> 0.1"},
       {:maxo_test_iex, "~> 0.1.7", only: [:test]}
     ]
   end
