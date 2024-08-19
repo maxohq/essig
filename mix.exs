@@ -1,9 +1,9 @@
-defmodule Supernamed.MixProject do
+defmodule Scoped.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :supernamed,
+      app: :scoped,
       version: "0.1.0",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
@@ -17,7 +17,7 @@ defmodule Supernamed.MixProject do
   def application do
     [
       extra_applications: [:logger, :observer, :wx],
-      mod: {Supernamed.Application, []}
+      mod: {Scoped.Application, []}
     ]
   end
 

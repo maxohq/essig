@@ -1,4 +1,4 @@
-defmodule Supernamed.Application do
+defmodule Scoped.Application do
   @moduledoc false
 
   use Application
@@ -9,7 +9,7 @@ defmodule Supernamed.Application do
       {Registry, keys: :unique, name: ChildRegistry}
     ]
 
-    opts = [strategy: :one_for_one, name: Supernamed.Supervisor]
+    opts = [strategy: :one_for_one, name: Scoped.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
