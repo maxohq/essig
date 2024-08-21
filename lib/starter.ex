@@ -12,7 +12,7 @@ defmodule Starter do
     end
   end
 
-  def remove_handlers(modules) do
+  def remove_casts(modules) do
     ensure_started!()
     Starter.EntityHandlers.remove_handlers(modules)
 
@@ -21,9 +21,9 @@ defmodule Starter do
     end)
   end
 
-  defp ensure_started! do
+  defp ensure_started!() do
     Context.assert_current_scope!()
-    Starter.Supervisor.ensure_supervisor_running()
+    Scopes.Server.start_link(Context.current_scope())
     Casts.MetaTable.init()
     Entities.MetaTable.init()
   end

@@ -1,6 +1,6 @@
-defmodule SeqChecker do
+defmodule Casts.SeqChecker do
   @moduledoc """
-  Checks, that some modules reached certain SEQ value
+  Checks, that given Cast modules reached certain SEQ value
   """
 
   def check_reached(modules, seq) do
@@ -10,7 +10,7 @@ defmodule SeqChecker do
       end)
 
     q = %{or: conditions, project: [:key, :seq]}
-    res = HandlerMeta.query(q)
+    res = Casts.MetaTable.query(q)
     Enum.count(res) == Enum.count(modules)
   end
 end
