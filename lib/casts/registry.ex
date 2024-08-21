@@ -6,7 +6,7 @@ defmodule Casts.Registry do
 
   def child_spec(opts) do
     %{
-      id: __MODULE__,
+      id: reg_name(),
       start: {__MODULE__, :start_link, [opts]},
       type: :worker,
       restart: :permanent,
@@ -14,12 +14,8 @@ defmodule Casts.Registry do
     }
   end
 
-  def register(module, pid) do
-    Registry.register(reg_name(), via(module), pid)
-  end
-
   def get(module) do
-    case Registry.lookup(reg_name(), via(module)) do
+    case Registry.lookup(reg_name(), module) do
       [{pid, _}] -> pid
       [] -> nil
     end
@@ -32,5 +28,10 @@ defmodule Casts.Registry do
   def reg_name do
     scope_name = Context.current_scope()
     "#{__MODULE__}_#{scope_name}" |> String.to_atom()
+  end
+
+  def keys do
+    Registry.select(reg_name(), [{{:"$1", :"$2", :"$3"}, [], [:"$_"]}])
+    |> Enum.sort()
   end
 end

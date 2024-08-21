@@ -1,5 +1,5 @@
 defmodule Entities.Entity1 do
-  use Casts.GenEntityHandler
+  use Entities.GenEntityHandler
 
   def push(uuid, element) do
     ResponseWrapper.cast(current_pid(uuid), {:push, element})

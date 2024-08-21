@@ -19,7 +19,7 @@ defmodule Entities.Registry do
   end
 
   def get(module, uuid) do
-    case Registry.lookup(reg_name(), via(module, uuid)) do
+    case Registry.lookup(reg_name(), {module, uuid}) do
       [{pid, _}] -> pid
       [] -> nil
     end
