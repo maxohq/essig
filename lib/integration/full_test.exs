@@ -1,12 +1,15 @@
 defmodule Scoped.Integration.FullTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Liveness
 
-  describe "system setup" do
-    test "cast registry start / stop / de-registration works", %{test: test_name} do
-      Context.set_current_scope(test_name)
+  setup %{test: test_name} do
+    Context.set_current_scope(test_name)
+    start_supervised({Scopes.Server, test_name})
+    :ok
+  end
 
-      start_supervised({Scopes.Server, test_name})
+  describe "system setup" do
+    test "cast registry start / stop / de-registration works" do
       {:ok, cast1} = Casts.Cast1.start_link(1)
       {:ok, cast2} = Casts.Cast2.start_link(1)
 
@@ -26,10 +29,7 @@ defmodule Scoped.Integration.FullTest do
       assert Casts.Registry.get(Casts.Cast2) == nil
     end
 
-    test "entity registry start / stop / de-registration works", %{test: test_name} do
-      Context.set_current_scope(test_name)
-
-      start_supervised({Scopes.Server, test_name})
+    test "entity registry start / stop / de-registration works" do
       {:ok, entity1_1} = Entities.Entity1.start_link(uuid: "1")
       {:ok, entity1_2} = Entities.Entity1.start_link(uuid: "2")
       {:ok, entity2_1} = Entities.Entity2.start_link(uuid: "1")
@@ -55,6 +55,11 @@ defmodule Scoped.Integration.FullTest do
       GenServer.stop(entity1_2)
       GenServer.stop(entity2_2)
       assert eventually(fn -> Entities.Registry.keys() |> Enum.count() == 0 end)
+
+      # re-registration works fine
+      {:ok, entity1_1} = Entities.Entity1.start_link(uuid: "1")
+      assert Entities.Registry.keys() |> Enum.count() == 1
+      assert Entities.Registry.get(Entities.Entity1, "1") == entity1_1
     end
   end
 end
