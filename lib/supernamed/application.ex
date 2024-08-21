@@ -6,7 +6,8 @@ defmodule Scoped.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {Registry, keys: :unique, name: ChildRegistry}
+      {Registry, keys: :unique, name: Scopes.Registry},
+      Scopes.DynamicSupervisor
     ]
 
     opts = [strategy: :one_for_one, name: Scoped.Supervisor]

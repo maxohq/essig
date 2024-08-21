@@ -1,4 +1,4 @@
-defmodule GenHandler do
+defmodule Casts.GenCastHandler do
   defmacro __using__(_) do
     quote do
       use GenServer
@@ -8,11 +8,11 @@ defmodule GenHandler do
       end
 
       defp via_tuple do
-        {:via, Registry, {ChildRegistry, {Context.current_scope(), __MODULE__}}}
+        Casts.Registry.via(__MODULE__)
       end
 
       def current_pid do
-        ChildRegistry.get(__MODULE__)
+        Casts.Registry.get(__MODULE__)
       end
     end
   end

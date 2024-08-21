@@ -2,27 +2,29 @@ defmodule Starter do
   def supervisor_name, do: Starter.Supervisor.supervisor_name()
   def stop_supervisor, do: Starter.Supervisor.stop_supervisor()
 
-  def add_handlers(modules) do
+  def add_casts(modules) do
     ensure_started!()
 
-    with {:ok, list} <- Starter.Handlers.add_handlers(modules) do
+    with {:ok, list} <- Starter.EntityHandlers.add_handlers(modules) do
       Enum.map(list, fn {_scope_name, module} ->
-        HandlerMeta.update(module, %{})
+        Casts.MetaTable.update(module, %{})
       end)
     end
   end
 
   def remove_handlers(modules) do
     ensure_started!()
-    Starter.Handlers.remove_handlers(modules)
+    Starter.EntityHandlers.remove_handlers(modules)
 
     Enum.map(modules, fn module ->
-      HandlerMeta.delete(module)
+      Casts.MetaTable.delete(module)
     end)
   end
 
   defp ensure_started! do
     Context.assert_current_scope!()
-    HandlerMeta.init()
+    Starter.Supervisor.ensure_supervisor_running()
+    Casts.MetaTable.init()
+    Entities.MetaTable.init()
   end
 end

@@ -1,2 +1,0 @@
-defmodule AppConfig do
-end

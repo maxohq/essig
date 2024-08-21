@@ -2,6 +2,10 @@ defmodule HandlerMetaTest do
   use ExUnit.Case, async: true
   require Logger
 
+  defmodule HandlerMeta do
+    use GenMetaTable, "handler_meta"
+  end
+
   setup do
     # Set up a test app context
     test_app = "test_app_#{:rand.uniform(1000)}"

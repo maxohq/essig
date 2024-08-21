@@ -1,4 +1,4 @@
-defmodule Starter.Handlers do
+defmodule Starter.EntityHandlers do
   alias Starter.Supervisor, as: StSup
   require Logger
 

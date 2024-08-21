@@ -1,16 +1,16 @@
 defmodule Handlers.Handler2 do
-  use GenHandler
+  use Casts.GenEntityHandler
 
-  def push(element) do
-    ResponseWrapper.cast(current_pid(), {:push, element})
+  def push(uuid, element) do
+    ResponseWrapper.cast(current_pid(uuid), {:push, element})
   end
 
-  def pop() do
-    ResponseWrapper.call(current_pid(), :pop)
+  def pop(uuid) do
+    ResponseWrapper.call(current_pid(uuid), :pop)
   end
 
-  def all() do
-    ResponseWrapper.call(current_pid(), :all)
+  def all(uuid) do
+    ResponseWrapper.call(current_pid(uuid), :all)
   end
 
   # Callbacks

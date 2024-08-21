@@ -1,0 +1,55 @@
+
+
+### REG
+Registry.start_link(keys: :unique, name: Registry.UpdateTest)
+{:ok, _} = Registry.register(Registry.UpdateTest, "hello", 1)
+Registry.lookup(Registry.UpdateTest, "hello")
+Registry.update_value(Registry.UpdateTest, "hello", &(&1 + 1))
+Registry.lookup(Registry.UpdateTest, "hello")
+
+Registry.start_link(keys: :unique, name: Registry.UpdateTest)
+{:ok, _} = Registry.register(Registry.UpdateTest, "hello", %{})
+Registry.lookup(Registry.UpdateTest, "hello")
+Registry.update_value(Registry.UpdateTest, "hello", &( Map.put(&1, :super, 1 + Map.get(&1, :super, 0))))
+Registry.lookup(Registry.UpdateTest, "hello")
+
+
+
+### SCOPE
+
+scope1 = "app1"
+reg_name1 = String.to_atom("Es.ScopeRegistry_#{scope1}")
+{:ok, _} = Registry.start_link(:unique, reg_name1)
+name1 = {:via, Registry, {reg_name1, "agent"}}
+{:ok, _} = Agent.start_link(fn -> 0 end, name: name1)
+Agent.get(name1, & &1)
+#=> 0
+Agent.update(name1, & &1 + 1)
+Agent.get(name1, & &1)
+
+
+
+scope2 = "app2"
+reg_name2 = String.to_atom("Es.ScopeRegistry_#{scope2}")
+{:ok, _} = Registry.start_link(:unique, reg_name2)
+
+name2 = {:via, Registry, {reg_name2, "agent"}}
+
+
+{:ok, _} = Agent.start_link(fn -> 0 end, name: name2)
+Agent.get(name2, & &1)
+#=> 0
+Agent.update(name2, & &1 + 1)
+Agent.get(name2, & &1)
+
+Registry.select(reg_name1, [{{:"$1", :_, :_}, [], [:"$1"]}]) |> Enum.sort()
+Registry.select(reg_name2, [{{:"$1", :_, :_}, [], [:"$1"]}]) |> Enum.sort()
+
+Process.flag(:trap_exit, true)
+
+
+Process.whereis(reg_name2) |> Process.exit(:normal)
+flush
+
+Process.whereis(reg_name1) |> Process.exit(:normal)
+flush
