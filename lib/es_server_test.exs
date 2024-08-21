@@ -26,7 +26,11 @@ defmodule EsServerTest do
 
     test "works with entities" do
       EsServer.start_scope("app1")
-      EsServer.start_entity(Entities.Entity1, "1")
+      {:ok, _} = EsServer.start_entity(Entities.Entity1, "1")
+
+      # duplicate entities are prevented
+      {:error, {:already_started, _}} = EsServer.start_entity(Entities.Entity1, "1")
+
       pid = Scopes.Registry.get("app1")
       assert is_pid(pid)
 
