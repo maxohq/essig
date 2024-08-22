@@ -18,6 +18,6 @@ defmodule Es.Context do
   end
 
   def current_meta do
-    ProcDict.get_with_ancestors(@metakey)
+    ProcDict.get_with_ancestors(@metakey) || %{}
   end
 end

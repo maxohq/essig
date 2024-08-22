@@ -3,8 +3,8 @@ defmodule Es.Crud.CastsCrud do
 
   @resource Dryhard.config(Cast, Repo, "es_casts")
 
-  @tocast [:app_uuid, :module, :status, :max_id, :seq, :setup_done]
-  @toreq [:app_uuid, :module, :seq]
+  @tocast [:scope_uuid, :module, :status, :max_id, :seq, :setup_done]
+  @toreq [:scope_uuid, :module, :seq]
 
   # Common CRUD functions
   Dryhard.list(@resource)
@@ -16,7 +16,7 @@ defmodule Es.Crud.CastsCrud do
 
   Dryhard.upsert(@resource, &ME.upsert_changeset/2,
     on_conflict: {:replace, [:max_id, :status, :seq]},
-    conflict_target: [:app_uuid, :module]
+    conflict_target: [:scope_uuid, :module]
   )
 
   Dryhard.update(@resource, &ME.changeset/2)
@@ -24,8 +24,8 @@ defmodule Es.Crud.CastsCrud do
   Dryhard.delete(@resource)
 
   def get_cast_by_module(module) when is_binary(module) do
-    app_uuid = Es.Context.current_scope()
-    Repo.get_by(Es.Schemas.Cast, module: module, app_uuid: app_uuid)
+    scope_uuid = Es.Context.current_scope()
+    Repo.get_by(Es.Schemas.Cast, module: module, scope_uuid: scope_uuid)
   end
 
   def get_cast_by_module(module) do
@@ -42,13 +42,13 @@ defmodule Es.Crud.CastsCrud do
     entity
     |> cast(attrs, @tocast)
     |> validate_required(@toreq)
-    |> unique_constraint([:app_uuid, :module])
+    |> unique_constraint([:scope_uuid, :module])
   end
 
   def upsert_changeset(entity, attrs) do
     entity
     |> cast(attrs, @tocast)
-    |> validate_required([:app_uuid, :module, :status, :max_id, :seq])
-    |> unique_constraint([:app_uuid, :module])
+    |> validate_required([:scope_uuid, :module, :status, :max_id, :seq])
+    |> unique_constraint([:scope_uuid, :module])
   end
 end

@@ -8,10 +8,10 @@ defmodule Es.Crud.EventsCrudTest do
     errors = errors_on(changeset)
 
     assert Map.keys(errors) |> Enum.sort() == [
-             :app_uuid,
              :data,
              :event_type,
              :meta,
+             :scope_uuid,
              :seq,
              :stream_uuid
            ]
@@ -25,11 +25,11 @@ defmodule Es.Crud.EventsCrudTest do
 
   test "creates proper events" do
     stream_uuid = Ecto.UUID7.generate()
-    app_uuid = Ecto.UUID7.generate()
+    scope_uuid = Ecto.UUID7.generate()
 
     {:ok, _stream} =
       StreamsCrud.create_stream(%{
-        app_uuid: app_uuid,
+        scope_uuid: scope_uuid,
         stream_uuid: stream_uuid,
         stream_type: "user",
         seq: 1
@@ -41,7 +41,7 @@ defmodule Es.Crud.EventsCrudTest do
       EventsCrud.create_event(%{
         seq: 1,
         stream_uuid: stream_uuid,
-        app_uuid: app_uuid,
+        scope_uuid: scope_uuid,
         stream_type: "user",
         event_type: "user.create",
         data: payload,
@@ -50,6 +50,6 @@ defmodule Es.Crud.EventsCrudTest do
 
     assert event.event_uuid
     assert event.stream_uuid == stream_uuid
-    assert event.app_uuid == app_uuid
+    assert event.scope_uuid == scope_uuid
   end
 end

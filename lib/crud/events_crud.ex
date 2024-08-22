@@ -2,8 +2,8 @@ defmodule Es.Crud.EventsCrud do
   use Helpers.DryHardWrapper, schema: Es.Schemas.Event
 
   @resource Dryhard.config(Event, Repo, "es_events")
-  @tocast [:app_uuid, :stream_uuid, :seq, :event_type, :data, :meta]
-  @toreq [:app_uuid, :stream_uuid, :seq, :event_type, :data, :meta]
+  @tocast [:scope_uuid, :stream_uuid, :seq, :event_type, :data, :meta]
+  @toreq [:scope_uuid, :stream_uuid, :seq, :event_type, :data, :meta]
 
   # Common CRUD functions
   Dryhard.paginate(@resource)

@@ -27,13 +27,13 @@ defmodule Es.EventStore.AppendToStream do
   end
 
   defp ensure_stream_exists(stream_uuid, stream_type) do
-    app_uuid = Es.Context.current_scope()
+    scope_uuid = Es.Context.current_scope()
 
     with {:ok, stream} <-
            Es.Crud.StreamsCrud.upsert_stream(%{
              stream_type: stream_type,
              stream_uuid: stream_uuid,
-             app_uuid: app_uuid
+             scope_uuid: scope_uuid
            }) do
       # we need to reload, so that we get the latest seq value
       stream = Repo.reload(stream)
@@ -55,13 +55,13 @@ defmodule Es.EventStore.AppendToStream do
   end
 
   defp prepare_events(stream, events) do
-    app_uuid = Es.Context.current_scope()
+    scope_uuid = Es.Context.current_scope()
     meta = Es.Context.current_meta()
 
     Enum.with_index(events)
     |> Enum.map(fn {item, index} ->
       %{
-        app_uuid: app_uuid,
+        scope_uuid: scope_uuid,
         seq: stream.seq + index + 1,
         stream_uuid: stream.stream_uuid,
         stream_type: stream.stream_type,

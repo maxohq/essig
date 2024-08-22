@@ -2,8 +2,8 @@ defmodule Es.Crud.StreamsCrud do
   use Helpers.DryHardWrapper, schema: Es.Schemas.Stream
 
   @resource Dryhard.config(Stream, Repo, "es_streams")
-  @tocast [:app_uuid, :stream_uuid, :stream_type, :seq]
-  @toreq [:app_uuid, :stream_type, :seq]
+  @tocast [:scope_uuid, :stream_uuid, :stream_type, :seq]
+  @toreq [:scope_uuid, :stream_type, :seq]
 
   # Common CRUD functions
   Dryhard.list(@resource)
@@ -13,7 +13,11 @@ defmodule Es.Crud.StreamsCrud do
   Dryhard.new(@resource)
   Dryhard.create(@resource, &ME.changeset/2)
   Dryhard.update(@resource, &ME.changeset/2)
-  Dryhard.upsert(@resource, &ME.changeset/2, on_conflict: :nothing, conflict_target: [:stream_uuid])
+
+  Dryhard.upsert(@resource, &ME.changeset/2,
+    on_conflict: :nothing,
+    conflict_target: [:stream_uuid]
+  )
 
   @doc false
   def changeset(entity, attrs) do
