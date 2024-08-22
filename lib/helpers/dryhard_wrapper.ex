@@ -1,4 +1,4 @@
-defmodule Helpers.DryHardWrapper do
+defmodule Essig.Helpers.DryHardWrapper do
   @moduledoc """
   A small wrapper for DryHard to reduce the boilerplate a bit
   """

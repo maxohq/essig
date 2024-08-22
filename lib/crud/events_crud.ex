@@ -1,5 +1,5 @@
 defmodule Essig.Crud.EventsCrud do
-  use Helpers.DryHardWrapper, schema: Essig.Schemas.Event
+  use Essig.Helpers.DryHardWrapper, schema: Essig.Schemas.Event
 
   @resource Dryhard.config(Event, Repo, "es_events")
   @tocast [:scope_uuid, :stream_uuid, :seq, :event_type, :data, :meta]

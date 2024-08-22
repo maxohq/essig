@@ -1,4 +1,4 @@
-defmodule ResponseWrapper do
+defmodule Essig.Helpers.ResponseWrapper do
   def cast(pid, args) do
     if is_pid(pid) do
       GenServer.cast(pid, args)

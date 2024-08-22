@@ -3,6 +3,8 @@ defmodule Essig.Entities.GenEntityHandler do
     quote do
       use GenServer
 
+      alias Essig.Helpers.ResponseWrapper
+
       def start_link(args) do
         uuid = Keyword.fetch!(args, :uuid)
         GenServer.start_link(__MODULE__, args, name: via_tuple(uuid))

@@ -70,7 +70,7 @@ defmodule Essig.EventStore.AppendToStream do
         meta: meta
       }
     end)
-    |> Helpers.Result.ok()
+    |> Essig.Helpers.Result.ok()
   end
 
   defp insert_events(event_payloads) do

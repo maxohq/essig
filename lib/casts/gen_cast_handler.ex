@@ -2,6 +2,7 @@ defmodule Essig.Casts.GenCastHandler do
   defmacro __using__(_) do
     quote do
       use GenServer
+      alias Essig.Helpers.ResponseWrapper
 
       def start_link(args) do
         GenServer.start_link(__MODULE__, args, name: via_tuple())

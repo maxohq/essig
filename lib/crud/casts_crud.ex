@@ -1,5 +1,5 @@
 defmodule Essig.Crud.CastsCrud do
-  use Helpers.DryHardWrapper, schema: Essig.Schemas.Cast
+  use Essig.Helpers.DryHardWrapper, schema: Essig.Schemas.Cast
 
   @resource Dryhard.config(Cast, Repo, "es_casts")
 

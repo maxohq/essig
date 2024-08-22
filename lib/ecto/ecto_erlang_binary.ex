@@ -27,12 +27,12 @@ defmodule Ecto.EctoErlangBinary do
   def dump(term), do: {:ok, to_binary(term)}
 
   defp to_binary(term) do
-    Helpers.Compressor.compress(term) |> Base.encode64()
+    Essig.Helpers.Compressor.compress(term) |> Base.encode64()
   end
 
   defp from_binary(nil), do: nil
 
   defp from_binary(string) do
-    Base.decode64!(string) |> Helpers.Compressor.uncompress()
+    Base.decode64!(string) |> Essig.Helpers.Compressor.uncompress()
   end
 end
