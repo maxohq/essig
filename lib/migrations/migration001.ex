@@ -1,10 +1,7 @@
-defmodule Migrations.Migration003 do
+defmodule Migrations.Migration001 do
   use Ecto.Migration
 
   def up do
-    ## remove prev tables
-    drop_old!()
-
     create_scopes()
     create_events()
     create_streams()
@@ -15,14 +12,6 @@ defmodule Migrations.Migration003 do
     drop_if_exists(table(:es_scopes))
     drop_if_exists(table(:es_events))
     drop_if_exists(table(:es_streams))
-    drop_if_exists(table(:es_casts))
-  end
-
-  def drop_old! do
-    drop_if_exists(table(:es_apps))
-    drop_if_exists(table(:es_events))
-    drop_if_exists(table(:es_streams))
-    drop_if_exists(table(:es_subscriptions))
     drop_if_exists(table(:es_casts))
   end
 
