@@ -6,6 +6,7 @@ defmodule Scoped.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Scoped.Repo,
       {Registry, keys: :unique, name: Scopes.Registry},
       Scopes.DynamicSupervisor
     ]

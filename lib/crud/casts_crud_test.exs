@@ -1,5 +1,5 @@
 defmodule Es.CastsCrudTest do
-  use Vecufy.DataCase
+  use Scoped.DataCase
   alias Es.Crud.CastsCrud
 
   test "requires name field" do
@@ -27,10 +27,26 @@ defmodule Es.CastsCrudTest do
     uuid = Ecto.UUID7.generate()
     {:ok, cast} = CastsCrud.create_cast(%{module: "module-1", app_uuid: uuid, seq: 1})
 
-    {:ok, cast2} = CastsCrud.upsert_cast(%{module: "module-1", app_uuid: uuid, max_id: 2, seq: 1, status: :backfilling})
+    {:ok, cast2} =
+      CastsCrud.upsert_cast(%{
+        module: "module-1",
+        app_uuid: uuid,
+        max_id: 2,
+        seq: 1,
+        status: :backfilling
+      })
+
     assert cast2.max_id == 2
 
-    {:ok, cast3} = CastsCrud.upsert_cast(%{module: "module-1", app_uuid: uuid, seq: 5, max_id: 7, status: :backfilling})
+    {:ok, cast3} =
+      CastsCrud.upsert_cast(%{
+        module: "module-1",
+        app_uuid: uuid,
+        seq: 5,
+        max_id: 7,
+        status: :backfilling
+      })
+
     assert cast3.seq == 5
     assert cast3.max_id == 7
     # same DB record!

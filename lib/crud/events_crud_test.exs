@@ -1,12 +1,20 @@
 defmodule Es.Crud.EventsCrudTest do
-  use Vecufy.DataCase
+  use Scoped.DataCase
   alias Es.Crud.EventsCrud
   alias Es.Crud.StreamsCrud
 
   test "check on required fields" do
     {:error, changeset} = EventsCrud.create_event(%{})
     errors = errors_on(changeset)
-    assert Map.keys(errors) |> Enum.sort() == [:app_uuid, :data, :event_type, :meta, :seq, :stream_uuid]
+
+    assert Map.keys(errors) |> Enum.sort() == [
+             :app_uuid,
+             :data,
+             :event_type,
+             :meta,
+             :seq,
+             :stream_uuid
+           ]
 
     assert Map.get(errors, :seq) == ["can't be blank"]
     assert Map.get(errors, :stream_uuid) == ["can't be blank"]
@@ -18,7 +26,15 @@ defmodule Es.Crud.EventsCrudTest do
   test "creates proper events" do
     stream_uuid = Ecto.UUID7.generate()
     app_uuid = Ecto.UUID7.generate()
-    {:ok, _stream} = StreamsCrud.create_stream(%{app_uuid: app_uuid, stream_uuid: stream_uuid, stream_type: "user", seq: 1})
+
+    {:ok, _stream} =
+      StreamsCrud.create_stream(%{
+        app_uuid: app_uuid,
+        stream_uuid: stream_uuid,
+        stream_type: "user",
+        seq: 1
+      })
+
     payload = %Vecufy.TestReports.Events.TicketMatchAdded{match_kind: "some"}
 
     {:ok, event} =

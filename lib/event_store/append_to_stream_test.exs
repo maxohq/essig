@@ -1,5 +1,5 @@
 defmodule Es.EventStore.AppendToStreamTest do
-  use Vecufy.DataCase
+  use Scoped.DataCase
 
   describe "stream does not exist" do
     setup do
