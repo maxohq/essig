@@ -1,4 +1,5 @@
 defmodule Essig.Context do
+  alias Helpers.ProcDict
   @appkey {Context, :current_scope}
   def set_current_scope(uuid) do
     ProcDict.put(@appkey, uuid)

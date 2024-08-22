@@ -1,4 +1,4 @@
-defmodule ProcDict do
+defmodule Helpers.ProcDict do
   # FROM: https://github.com/maxohq/maxo_adapt/blob/main/lib/maxo_adapt/proc_dict.ex
   @moduledoc """
   Custom wrapper around process dictionary, that supports looking up values from ancestor processes
