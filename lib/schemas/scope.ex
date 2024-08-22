@@ -1,8 +1,8 @@
-defmodule Es.Schemas.App do
+defmodule Es.Schemas.Scope do
   use Ecto.Schema
 
   @primary_key {:scope_uuid, Ecto.UUID, autogenerate: {Ecto.UUID7, :generate, []}}
-  schema "es_apps" do
+  schema "es_scopes" do
     # this is another "primary" key, used for global ordering (+ and when fetching all stream)
     field(:id, :integer, read_after_writes: true)
     field(:name, :string)

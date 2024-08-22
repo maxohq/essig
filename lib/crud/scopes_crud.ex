@@ -1,7 +1,7 @@
-defmodule Es.Crud.AppsCrud do
-  use Helpers.DryHardWrapper, schema: Es.Schemas.App
+defmodule Es.Crud.ScopesCrud do
+  use Helpers.DryHardWrapper, schema: Es.Schemas.Scope
 
-  @resource Dryhard.config(App, Repo, "es_apps")
+  @resource Dryhard.config(Scope, Repo, "es_scopes")
 
   @tocast [:id, :name, :max_id, :seq]
   @toreq [:name]
@@ -23,8 +23,8 @@ defmodule Es.Crud.AppsCrud do
   Dryhard.change(@resource, &ME.changeset/2)
   Dryhard.delete(@resource)
 
-  def get_app_by_name(name) when is_binary(name) do
-    Repo.get_by(App, name: name)
+  def get_scope_by_name(name) when is_binary(name) do
+    Repo.get_by(Scope, name: name)
   end
 
   @doc false
