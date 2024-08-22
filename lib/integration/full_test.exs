@@ -3,7 +3,7 @@ defmodule Scoped.Integration.FullTest do
   import Liveness
 
   setup %{test: test_name} do
-    Context.set_current_scope(test_name)
+    Es.Context.set_current_scope(test_name)
     start_supervised({Scopes.Server, test_name})
     :ok
   end

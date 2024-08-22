@@ -1,6 +1,6 @@
 defmodule EsServer do
   def start_scope(scope) do
-    Context.set_current_scope(scope)
+    Es.Context.set_current_scope(scope)
     Scopes.Server.start_link(scope)
   end
 

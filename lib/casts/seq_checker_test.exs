@@ -4,7 +4,7 @@ defmodule Casts.SeqCheckerTest do
 
   describe "check_reached/2" do
     setup do
-      Context.set_current_scope("app1")
+      Es.Context.set_current_scope("app1")
       Casts.MetaTable.init()
       :ok
     end

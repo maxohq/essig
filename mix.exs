@@ -25,6 +25,9 @@ defmodule Scoped.MixProject do
   defp deps do
     [
       {:liveness, "~> 1.0.0"},
+      {:dryhard, "~> 0.1"},
+      {:ecto_cursor_based_stream, "~> 1.0.2"},
+      {:uniq, "~> 0.6"},
       {:ets_select, "~> 0.1.2"},
       {:data_tracer, "~> 0.1"},
       {:maxo_test_iex, "~> 0.1.7", only: [:test]}

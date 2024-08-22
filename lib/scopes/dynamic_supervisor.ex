@@ -12,7 +12,7 @@ defmodule Scopes.DynamicSupervisor do
   end
 
   def start_child(scope) do
-    Context.set_current_scope(scope)
+    Es.Context.set_current_scope(scope)
     spec = %{id: {Scopes.Server, scope}, start: {Scopes.Server, :start_link, [scope]}}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end

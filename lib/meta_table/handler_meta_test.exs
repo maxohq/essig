@@ -9,10 +9,10 @@ defmodule HandlerMetaTest do
   setup do
     # Set up a test app context
     test_app = "test_app_#{:rand.uniform(1000)}"
-    Context.set_current_scope(test_app)
+    Es.Context.set_current_scope(test_app)
 
     on_exit(fn ->
-      Context.set_current_scope(nil)
+      Es.Context.set_current_scope(nil)
     end)
 
     %{test_app: test_app}
@@ -144,14 +144,14 @@ defmodule HandlerMetaTest do
     HandlerMeta.set(TestModule, %{field: "value1"})
 
     # Switch to a different app context
-    Context.set_current_scope("another_app")
+    Es.Context.set_current_scope("another_app")
     HandlerMeta.init()
     HandlerMeta.set(TestModule, %{field: "value2"})
 
     assert HandlerMeta.get(TestModule) == %{field: "value2", key: TestModule}
 
     # Switch back to the original app context
-    Context.set_current_scope(test_app)
+    Es.Context.set_current_scope(test_app)
     assert HandlerMeta.get(TestModule) == %{field: "value1", key: TestModule}
   end
 end

@@ -1,4 +1,4 @@
-defmodule Context do
+defmodule Es.Context do
   @appkey {Context, :current_scope}
   def set_current_scope(uuid) do
     ProcDict.put(@appkey, uuid)
@@ -9,6 +9,15 @@ defmodule Context do
   end
 
   def assert_current_scope! do
-    current_scope() || raise "Missing current_scope, set via: Context.set_current_scope(uuid)!"
+    current_scope() || raise "Missing current_scope, set via: Es.Context.set_current_scope(uuid)!"
+  end
+
+  @metakey {Context, :current_meta}
+  def set_current_meta(meta) do
+    ProcDict.put(@metakey, meta)
+  end
+
+  def current_meta do
+    ProcDict.get_with_ancestors(@metakey)
   end
 end

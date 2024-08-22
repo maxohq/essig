@@ -1,6 +1,6 @@
 defmodule Entities.Registry do
   def start_link(_) do
-    Context.assert_current_scope!()
+    Es.Context.assert_current_scope!()
     Registry.start_link(keys: :unique, name: reg_name())
   end
 
@@ -30,7 +30,7 @@ defmodule Entities.Registry do
   end
 
   def reg_name do
-    scope_name = Context.current_scope()
+    scope_name = Es.Context.current_scope()
     "#{__MODULE__}_#{scope_name}" |> String.to_atom()
   end
 
