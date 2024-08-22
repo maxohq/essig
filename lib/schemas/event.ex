@@ -2,7 +2,7 @@ defmodule Essig.Schemas.Event do
   use Ecto.Schema
 
   @primary_key {:event_uuid, Ecto.UUID, autogenerate: {Essig.Ecto.UUID7, :generate, []}}
-  schema "es_events" do
+  schema "essig_events" do
     # this is another "primary" key, used for global ordering (+ and when fetching all stream)
     field(:id, :integer, read_after_writes: true)
     field(:scope_uuid, Ecto.UUID)
