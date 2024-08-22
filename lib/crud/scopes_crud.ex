@@ -1,5 +1,5 @@
-defmodule Es.Crud.ScopesCrud do
-  use Helpers.DryHardWrapper, schema: Es.Schemas.Scope
+defmodule Essig.Crud.ScopesCrud do
+  use Helpers.DryHardWrapper, schema: Essig.Schemas.Scope
 
   @resource Dryhard.config(Scope, Repo, "es_scopes")
 

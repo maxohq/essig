@@ -1,7 +1,7 @@
-defmodule Es.Crud.EventsCrudTest do
+defmodule Essig.Crud.EventsCrudTest do
   use Essig.DataCase
-  alias Es.Crud.EventsCrud
-  alias Es.Crud.StreamsCrud
+  alias Essig.Crud.EventsCrud
+  alias Essig.Crud.StreamsCrud
 
   test "check on required fields" do
     {:error, changeset} = EventsCrud.create_event(%{})
@@ -35,7 +35,7 @@ defmodule Es.Crud.EventsCrudTest do
         seq: 1
       })
 
-    payload = %Vecufy.TestReports.Events.TicketMatchAdded{match_kind: "some"}
+    payload = %CustomApp.TestReports.Events.TicketMatchAdded{match_kind: "some"}
 
     {:ok, event} =
       EventsCrud.create_event(%{

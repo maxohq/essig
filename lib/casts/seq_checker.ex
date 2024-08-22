@@ -1,4 +1,4 @@
-defmodule Casts.SeqChecker do
+defmodule Essig.Casts.SeqChecker do
   @moduledoc """
   Checks, that given Cast modules reached certain SEQ value
   """
@@ -10,7 +10,7 @@ defmodule Casts.SeqChecker do
       end)
 
     q = %{or: conditions, project: [:key, :seq]}
-    res = Casts.MetaTable.query(q)
+    res = Essig.Casts.MetaTable.query(q)
     Enum.count(res) == Enum.count(modules)
   end
 end

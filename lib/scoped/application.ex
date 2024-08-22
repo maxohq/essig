@@ -7,8 +7,8 @@ defmodule Essig.Application do
   def start(_type, _args) do
     children = [
       Essig.Repo,
-      {Registry, keys: :unique, name: Scopes.Registry},
-      Scopes.DynamicSupervisor
+      {Registry, keys: :unique, name: Essig.Scopes.Registry},
+      Essig.Scopes.DynamicSupervisor
     ]
 
     opts = [strategy: :one_for_one, name: Essig.Supervisor]

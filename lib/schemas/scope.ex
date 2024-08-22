@@ -1,4 +1,4 @@
-defmodule Es.Schemas.Scope do
+defmodule Essig.Schemas.Scope do
   use Ecto.Schema
 
   @primary_key {:scope_uuid, Ecto.UUID, autogenerate: {Ecto.UUID7, :generate, []}}

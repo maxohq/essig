@@ -1,9 +1,9 @@
-defmodule HandlerMetaTest do
+defmodule Essig.HandlerMetaTest do
   use ExUnit.Case, async: true
   require Logger
 
   defmodule HandlerMeta do
-    use GenMetaTable, "handler_meta"
+    use Essig.GenMetaTable, "handler_meta"
   end
 
   setup do

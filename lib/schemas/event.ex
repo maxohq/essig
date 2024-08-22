@@ -1,4 +1,4 @@
-defmodule Es.Schemas.Event do
+defmodule Essig.Schemas.Event do
   use Ecto.Schema
 
   @primary_key {:event_uuid, Ecto.UUID, autogenerate: {Ecto.UUID7, :generate, []}}

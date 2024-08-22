@@ -22,7 +22,7 @@ defmodule Essig.EventStore.AppendToStream do
     end)
     |> Ecto.Multi.run(:update_seq, fn _repo, %{stream: stream, insert_events: insert_events} ->
       last_event = Enum.at(insert_events, -1)
-      Es.Crud.StreamsCrud.update_stream(stream, %{seq: last_event.seq})
+      Essig.Crud.StreamsCrud.update_stream(stream, %{seq: last_event.seq})
     end)
   end
 
@@ -30,7 +30,7 @@ defmodule Essig.EventStore.AppendToStream do
     scope_uuid = Essig.Context.current_scope()
 
     with {:ok, stream} <-
-           Es.Crud.StreamsCrud.upsert_stream(%{
+           Essig.Crud.StreamsCrud.upsert_stream(%{
              stream_type: stream_type,
              stream_uuid: stream_uuid,
              scope_uuid: scope_uuid
@@ -76,7 +76,7 @@ defmodule Essig.EventStore.AppendToStream do
   defp insert_events(event_payloads) do
     events =
       Enum.map(event_payloads, fn event_payload ->
-        with {:ok, event} <- Es.Crud.EventsCrud.create_event(event_payload) do
+        with {:ok, event} <- Essig.Crud.EventsCrud.create_event(event_payload) do
           event
         end
       end)

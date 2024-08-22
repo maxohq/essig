@@ -1,5 +1,5 @@
-defmodule Es.Crud.StreamsCrud do
-  use Helpers.DryHardWrapper, schema: Es.Schemas.Stream
+defmodule Essig.Crud.StreamsCrud do
+  use Helpers.DryHardWrapper, schema: Essig.Schemas.Stream
 
   @resource Dryhard.config(Stream, Repo, "es_streams")
   @tocast [:scope_uuid, :stream_uuid, :stream_type, :seq]

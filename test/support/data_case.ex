@@ -10,7 +10,7 @@ defmodule Essig.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use Vecufy.DataCase, async: true`, although
+  by setting `use CustomApp.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 

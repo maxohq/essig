@@ -1,4 +1,4 @@
-defmodule Es.Schemas.Stream do
+defmodule Essig.Schemas.Stream do
   use Ecto.Schema
   @primary_key {:stream_uuid, Ecto.UUID, autogenerate: {Ecto.UUID7, :generate, []}}
   schema "es_streams" do

@@ -1,4 +1,4 @@
-defmodule Scopes.DynamicSupervisor do
+defmodule Essig.Scopes.DynamicSupervisor do
   # Automatically defines child_spec/1
   use DynamicSupervisor
 

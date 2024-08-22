@@ -1,6 +1,6 @@
-defmodule Es.Crud.StreamsCrudTest do
+defmodule Essig.Crud.StreamsCrudTest do
   use Essig.DataCase
-  alias Es.Crud.StreamsCrud
+  alias Essig.Crud.StreamsCrud
 
   test "check on required fields" do
     {:error, changeset} = StreamsCrud.create_stream(%{})

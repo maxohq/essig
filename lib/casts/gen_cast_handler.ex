@@ -1,4 +1,4 @@
-defmodule Casts.GenCastHandler do
+defmodule Essig.Casts.GenCastHandler do
   defmacro __using__(_) do
     quote do
       use GenServer

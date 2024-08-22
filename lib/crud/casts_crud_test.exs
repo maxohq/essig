@@ -1,6 +1,6 @@
-defmodule Es.CastsCrudTest do
+defmodule Essig.CastsCrudTest do
   use Essig.DataCase
-  alias Es.Crud.CastsCrud
+  alias Essig.Crud.CastsCrud
 
   test "requires name field" do
     {:error, changeset} = CastsCrud.create_cast(%{})

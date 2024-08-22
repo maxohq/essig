@@ -1,4 +1,4 @@
-defmodule GenMetaTable do
+defmodule Essig.GenMetaTable do
   defmacro __using__(table_kind) do
     quote do
       @table_kind unquote(table_kind)

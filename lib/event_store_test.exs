@@ -1,6 +1,6 @@
 defmodule Essig.EventStoreTest do
   use Essig.DataCase
-  alias alias Vecufy.TestReports.Events
+  alias alias CustomApp.TestReports.Events
   use MnemeDefaults
 
   setup do
@@ -154,19 +154,19 @@ defmodule Essig.EventStoreTest do
     test "supports nested Elixir structs" do
       uuid = "6c90a97a-2f79-4cc0-8798-c5b3efbab499"
 
-      report = %Vecufy.TestReports.MasterReport{
+      report = %CustomApp.TestReports.MasterReport{
         meta: %{name: "name", path: "path", date: "xxx", test_type: "ooo", test_tool: "xxxx"}
       }
 
-      e1 = %Vecufy.TestReports.Events.MasterReportAdded{report: report}
+      e1 = %CustomApp.TestReports.Events.MasterReportAdded{report: report}
       {:ok, _} = Essig.EventStore.append_to_stream(uuid, "trp", 0, [e1])
       res = Essig.EventStore.read_stream_forward(uuid, 0, 100)
 
       auto_assert(
         [
-          %Es.Schemas.Event{
-            data: %Vecufy.TestReports.Events.MasterReportAdded{
-              report: %Vecufy.TestReports.MasterReport{
+          %Essig.Schemas.Event{
+            data: %CustomApp.TestReports.Events.MasterReportAdded{
+              report: %CustomApp.TestReports.MasterReport{
                 meta: %{
                   date: "xxx",
                   name: "name",

@@ -1,5 +1,5 @@
-defmodule Es.Crud.CastsCrud do
-  use Helpers.DryHardWrapper, schema: Es.Schemas.Cast
+defmodule Essig.Crud.CastsCrud do
+  use Helpers.DryHardWrapper, schema: Essig.Schemas.Cast
 
   @resource Dryhard.config(Cast, Repo, "es_casts")
 
@@ -25,7 +25,7 @@ defmodule Es.Crud.CastsCrud do
 
   def get_cast_by_module(module) when is_binary(module) do
     scope_uuid = Essig.Context.current_scope()
-    Repo.get_by(Es.Schemas.Cast, module: module, scope_uuid: scope_uuid)
+    Repo.get_by(Essig.Schemas.Cast, module: module, scope_uuid: scope_uuid)
   end
 
   def get_cast_by_module(module) do
@@ -33,7 +33,7 @@ defmodule Es.Crud.CastsCrud do
   end
 
   def increment_seq(id, increment) when is_integer(increment) and increment > 0 do
-    from(c in Es.Schemas.Cast, where: c.id == ^id)
+    from(c in Essig.Schemas.Cast, where: c.id == ^id)
     |> Repo.update_all(inc: [seq: increment])
   end
 

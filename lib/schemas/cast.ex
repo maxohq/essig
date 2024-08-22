@@ -1,4 +1,4 @@
-defmodule Es.Schemas.Cast do
+defmodule Essig.Schemas.Cast do
   use Ecto.Schema
 
   @primary_key {:cast_uuid, Ecto.UUID, autogenerate: {Ecto.UUID7, :generate, []}}

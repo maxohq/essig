@@ -6,13 +6,13 @@ defmodule Essig.EventStore.AppendToStreamTest do
       Essig.Context.set_current_scope(Ecto.UUID7.generate())
       stream_uuid = Ecto.UUID7.generate()
 
-      e1 = %Vecufy.TestReports.Events.TicketMatchAdded{
+      e1 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
         id: "1",
         kind: "powertrain"
       }
 
-      e2 = %Vecufy.TestReports.Events.TicketMatchAdded{
+      e2 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
         id: "2",
         kind: "telematics"
@@ -51,13 +51,13 @@ defmodule Essig.EventStore.AppendToStreamTest do
       Essig.Context.set_current_scope(Ecto.UUID7.generate())
       stream_uuid = Ecto.UUID7.generate()
 
-      e1 = %Vecufy.TestReports.Events.TicketMatchAdded{
+      e1 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
         id: "1",
         kind: "powertrain"
       }
 
-      e2 = %Vecufy.TestReports.Events.TicketMatchAdded{
+      e2 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
         id: "2",
         kind: "telematics"
@@ -100,13 +100,13 @@ defmodule Essig.EventStore.AppendToStreamTest do
       Essig.Context.set_current_scope(Ecto.UUID7.generate())
       uuid = Ecto.UUID7.generate()
 
-      e1 = %Vecufy.TestReports.Events.TicketMatchAdded{
+      e1 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
         id: "1",
         kind: "powertrain"
       }
 
-      e2 = %Vecufy.TestReports.Events.TicketMatchAdded{
+      e2 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
         id: "2",
         kind: "telematics"
@@ -126,13 +126,13 @@ defmodule Essig.EventStore.AppendToStreamTest do
       Essig.Context.set_current_scope(Ecto.UUID7.generate())
       uuid = Ecto.UUID7.generate()
 
-      e1 = %Vecufy.TestReports.Events.TicketMatchAdded{
+      e1 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
         id: "1",
         kind: "powertrain"
       }
 
-      e2 = %Vecufy.TestReports.Events.TicketMatchAdded{
+      e2 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
         id: "2",
         kind: "telematics"

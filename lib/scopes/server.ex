@@ -6,7 +6,7 @@ defmodule Essig.Scopes.Server do
   end
 
   def via_tuple(scope) do
-    {:via, Registry, {Scopes.Registry, scope}}
+    {:via, Registry, {Essig.Scopes.Registry, scope}}
   end
 
   @impl true

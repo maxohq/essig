@@ -1,5 +1,5 @@
 defmodule Entities.Entity2 do
-  use Entities.GenEntityHandler
+  use Essig.Entities.GenEntityHandler
 
   def push(uuid, element) do
     ResponseWrapper.cast(current_pid(uuid), {:push, element})

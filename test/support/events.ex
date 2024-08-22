@@ -1,4 +1,4 @@
-defmodule Vecufy.TestReports.Events.TicketMatchAdded do
+defmodule CustomApp.TestReports.Events.TicketMatchAdded do
   @moduledoc """
   - a matching ticket was configured
   - we must always have 2 (!!!) subtickets per Test Report process
@@ -13,7 +13,7 @@ defmodule Vecufy.TestReports.Events.TicketMatchAdded do
   defstruct [:match_kind, :id, :kind]
 end
 
-defmodule Vecufy.TestReports.Events.ReqTestReportsUpdated do
+defmodule CustomApp.TestReports.Events.ReqTestReportsUpdated do
   @moduledoc """
   - there was a change in the required test reports config
   - a value was set OR deleted
@@ -35,7 +35,7 @@ defmodule Vecufy.TestReports.Events.ReqTestReportsUpdated do
   defstruct [:ops]
 end
 
-defmodule Vecufy.TestReports.Events.MasterReportAdded do
+defmodule CustomApp.TestReports.Events.MasterReportAdded do
   @moduledoc """
   - an xml file with master report data was found in ZIP and could be parsed
   - we store the XML file name, the content is kept in the BinStorage (BinStorageMasterReport) system (can be potentially multiple MBs)
@@ -46,16 +46,16 @@ defmodule Vecufy.TestReports.Events.MasterReportAdded do
   defstruct [:path, :report]
 end
 
-defmodule Vecufy.TestReports.MasterReport do
+defmodule CustomApp.TestReports.MasterReport do
   defstruct meta: %{},
             tool_versions: [],
             test_components: [],
             test_cases: []
 end
 
-defimpl Inspect, for: Vecufy.TestReports.MasterReport do
+defimpl Inspect, for: CustomApp.TestReports.MasterReport do
   def inspect(mreport, _opts) do
-    ~s|Vecufy.TestReports.MasterReport<meta: #{show_meta(mreport.meta)}>|
+    ~s|CustomApp.TestReports.MasterReport<meta: #{show_meta(mreport.meta)}>|
   end
 
   def show_meta(meta) do

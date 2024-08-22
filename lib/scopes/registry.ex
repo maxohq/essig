@@ -1,4 +1,4 @@
-defmodule Scopes.Registry do
+defmodule Essig.Scopes.Registry do
   def get(scope) do
     case Registry.lookup(__MODULE__, scope) do
       [{pid, _}] -> pid
