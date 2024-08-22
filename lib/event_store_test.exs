@@ -1,5 +1,5 @@
 defmodule Es.EventStoreTest do
-  use Scoped.DataCase
+  use Essig.DataCase
   alias alias Vecufy.TestReports.Events
   use MnemeDefaults
 

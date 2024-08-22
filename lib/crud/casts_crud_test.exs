@@ -1,5 +1,5 @@
 defmodule Es.CastsCrudTest do
-  use Scoped.DataCase
+  use Essig.DataCase
   alias Es.Crud.CastsCrud
 
   test "requires name field" do

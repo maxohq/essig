@@ -1,4 +1,4 @@
-defmodule Scoped.Application do
+defmodule Essig.Application do
   @moduledoc false
 
   use Application
@@ -6,12 +6,12 @@ defmodule Scoped.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      Scoped.Repo,
+      Essig.Repo,
       {Registry, keys: :unique, name: Scopes.Registry},
       Scopes.DynamicSupervisor
     ]
 
-    opts = [strategy: :one_for_one, name: Scoped.Supervisor]
+    opts = [strategy: :one_for_one, name: Essig.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

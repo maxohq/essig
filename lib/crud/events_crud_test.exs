@@ -1,5 +1,5 @@
 defmodule Es.Crud.EventsCrudTest do
-  use Scoped.DataCase
+  use Essig.DataCase
   alias Es.Crud.EventsCrud
   alias Es.Crud.StreamsCrud
 

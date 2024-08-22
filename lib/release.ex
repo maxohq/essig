@@ -1,9 +1,9 @@
-defmodule Scoped.Release do
+defmodule Essig.Release do
   @moduledoc """
   Used for executing DB release tasks when run in production without Mix
   installed.
   """
-  @app :scoped
+  @app :essig
 
   def migrate do
     load_app()

@@ -1,4 +1,4 @@
-defmodule Scoped.Integration.FullTest do
+defmodule Essig.Integration.FullTest do
   use ExUnit.Case, async: true
   import Liveness
 

@@ -1,9 +1,9 @@
-defmodule Scoped.MixProject do
+defmodule Essig.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :scoped,
+      app: :essig,
       version: "0.1.0",
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -22,7 +22,7 @@ defmodule Scoped.MixProject do
   def application do
     [
       extra_applications: [:logger, :observer, :wx],
-      mod: {Scoped.Application, []}
+      mod: {Essig.Application, []}
     ]
   end
 

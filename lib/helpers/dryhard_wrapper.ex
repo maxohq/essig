@@ -7,7 +7,7 @@ defmodule Helpers.DryHardWrapper do
 
     quote do
       alias __MODULE__, as: ME
-      use Scoped.Repo
+      use Essig.Repo
       import Ecto.Query, warn: false
       import Ecto.Changeset
       require Dryhard

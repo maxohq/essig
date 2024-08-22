@@ -1,5 +1,5 @@
 defmodule Es.EventStore.ReadStreamForward do
-  use Scoped.Repo
+  use Essig.Repo
   alias Es.Schemas.Event
 
   def run(stream_uuid, from_seq, amount) do

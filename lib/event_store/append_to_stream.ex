@@ -1,5 +1,5 @@
 defmodule Es.EventStore.AppendToStream do
-  use Scoped.Repo
+  use Essig.Repo
 
   def run(stream_uuid, stream_type, expected_seq, events) do
     multi(stream_uuid, stream_type, expected_seq, events)

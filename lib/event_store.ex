@@ -1,5 +1,5 @@
 defmodule Es.EventStore do
-  use Scoped.Repo
+  use Essig.Repo
 
   def append_to_stream(stream_uuid, stream_type, expected_seq, events) do
     with {:ok, res} <-

@@ -1,5 +1,5 @@
 defmodule Es.Crud.StreamsCrudTest do
-  use Scoped.DataCase
+  use Essig.DataCase
   alias Es.Crud.StreamsCrud
 
   test "check on required fields" do

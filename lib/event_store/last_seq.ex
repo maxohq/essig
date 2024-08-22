@@ -1,5 +1,5 @@
 defmodule Es.EventStore.LastSeq do
-  use Scoped.Repo
+  use Essig.Repo
 
   def run(stream_uuid) do
     stream = Es.Crud.StreamsCrud.get_stream(stream_uuid)

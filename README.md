@@ -10,7 +10,7 @@ by adding `Scoped` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:scoped, "~> 0.1.0"}
+    {:essig, "~> 0.1.0"}
   ]
 end
 ```

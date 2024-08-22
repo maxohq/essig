@@ -1,4 +1,4 @@
-defmodule Scoped.DataCase do
+defmodule Essig.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -18,17 +18,17 @@ defmodule Scoped.DataCase do
 
   using do
     quote do
-      alias Scoped.Repo
+      alias Essig.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Scoped.DataCase
+      import Essig.DataCase
     end
   end
 
   setup tags do
-    Scoped.DataCase.setup_sandbox(tags)
+    Essig.DataCase.setup_sandbox(tags)
     :ok
   end
 
@@ -36,7 +36,7 @@ defmodule Scoped.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Scoped.Repo, shared: not tags[:async])
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Essig.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 

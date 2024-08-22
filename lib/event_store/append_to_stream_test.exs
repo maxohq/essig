@@ -1,5 +1,5 @@
 defmodule Es.EventStore.AppendToStreamTest do
-  use Scoped.DataCase
+  use Essig.DataCase
 
   describe "stream does not exist" do
     setup do
