@@ -1,6 +1,8 @@
-# Scoped
+# Es-sig -> ES - significant lib :)
 
-**TODO: Add description**
+Essig is vinegar in German and I wanted a short word with ES (event sourcing) as first letters.
+Yep. That is really the background for the name.
+
 
 ## Installation
 
