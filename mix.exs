@@ -9,6 +9,7 @@ defmodule Essig.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      aliases: aliases(),
       test_paths: ["test", "lib"],
       test_pattern: "*_test.exs"
     ]
@@ -50,6 +51,19 @@ defmodule Essig.MixProject do
       ## DEV
       {:maxo_test_iex, "~> 0.1.7", only: [:test]},
       {:mneme, "~> 0.8", only: [:test]}
+    ]
+  end
+
+  defp aliases do
+    [
+      setup: ["deps.get", "ecto.setup"],
+      "ecto.setup": ["ecto.create", "essig.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      test: [
+        "ecto.create --quiet",
+        "essig.migrate --quiet",
+        "test"
+      ]
     ]
   end
 end
