@@ -1,4 +1,4 @@
-defmodule Ecto.EctoErlangBinary do
+defmodule Essig.Ecto.EctoErlangBinary do
   @moduledoc """
   A custom Ecto type for handling the serialization of arbitrary
   data types stored as binary data in the database. Requires the

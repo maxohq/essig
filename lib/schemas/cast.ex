@@ -1,7 +1,7 @@
 defmodule Essig.Schemas.Cast do
   use Ecto.Schema
 
-  @primary_key {:cast_uuid, Ecto.UUID, autogenerate: {Ecto.UUID7, :generate, []}}
+  @primary_key {:cast_uuid, Ecto.UUID, autogenerate: {Essig.Ecto.UUID7, :generate, []}}
   schema "es_casts" do
     # this is another "primary" key, used for global ordering (+ and when fetching all stream)
     field(:id, :integer, read_after_writes: true)

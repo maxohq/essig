@@ -1,7 +1,7 @@
 defmodule Essig.Schemas.Event do
   use Ecto.Schema
 
-  @primary_key {:event_uuid, Ecto.UUID, autogenerate: {Ecto.UUID7, :generate, []}}
+  @primary_key {:event_uuid, Ecto.UUID, autogenerate: {Essig.Ecto.UUID7, :generate, []}}
   schema "es_events" do
     # this is another "primary" key, used for global ordering (+ and when fetching all stream)
     field(:id, :integer, read_after_writes: true)
@@ -10,8 +10,8 @@ defmodule Essig.Schemas.Event do
     field(:event_type, :string)
 
     # we are not using Ecto.EctoJsonSerde, since nested serialization does not work properly
-    field(:data, Ecto.EctoErlangBinary)
-    field(:meta, Ecto.EctoErlangBinary)
+    field(:data, Essig.Ecto.EctoErlangBinary)
+    field(:meta, Essig.Ecto.EctoErlangBinary)
 
     field(:seq, :integer)
 

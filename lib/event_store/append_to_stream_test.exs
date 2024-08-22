@@ -3,8 +3,8 @@ defmodule Essig.EventStore.AppendToStreamTest do
 
   describe "stream does not exist" do
     setup do
-      Essig.Context.set_current_scope(Ecto.UUID7.generate())
-      stream_uuid = Ecto.UUID7.generate()
+      Essig.Context.set_current_scope(Essig.Ecto.UUID7.generate())
+      stream_uuid = Essig.Ecto.UUID7.generate()
 
       e1 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
@@ -48,8 +48,8 @@ defmodule Essig.EventStore.AppendToStreamTest do
 
   describe "stream exists + expected value matches" do
     setup do
-      Essig.Context.set_current_scope(Ecto.UUID7.generate())
-      stream_uuid = Ecto.UUID7.generate()
+      Essig.Context.set_current_scope(Essig.Ecto.UUID7.generate())
+      stream_uuid = Essig.Ecto.UUID7.generate()
 
       e1 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
@@ -97,8 +97,8 @@ defmodule Essig.EventStore.AppendToStreamTest do
 
   describe "stream exists, yet expected seq does not match" do
     test "returns errors" do
-      Essig.Context.set_current_scope(Ecto.UUID7.generate())
-      uuid = Ecto.UUID7.generate()
+      Essig.Context.set_current_scope(Essig.Ecto.UUID7.generate())
+      uuid = Essig.Ecto.UUID7.generate()
 
       e1 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
@@ -123,8 +123,8 @@ defmodule Essig.EventStore.AppendToStreamTest do
 
   describe "stream exists, seq matches, yet stream type does not match" do
     test "returns errors" do
-      Essig.Context.set_current_scope(Ecto.UUID7.generate())
-      uuid = Ecto.UUID7.generate()
+      Essig.Context.set_current_scope(Essig.Ecto.UUID7.generate())
+      uuid = Essig.Ecto.UUID7.generate()
 
       e1 = %CustomApp.TestReports.Events.TicketMatchAdded{
         match_kind: "auto",
