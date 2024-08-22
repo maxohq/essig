@@ -22,10 +22,13 @@ defmodule Essig.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :observer, :wx],
+      extra_applications: extra_apps(Mix.env()),
       mod: {Essig.Application, []}
     ]
   end
+
+  defp extra_apps(:dev), do: [:logger, :observer, :wx]
+  defp extra_apps(_), do: [:logger]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
