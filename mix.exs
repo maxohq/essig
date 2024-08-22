@@ -29,13 +29,25 @@ defmodule Essig.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:liveness, "~> 1.0.0"},
+      ## DB
       {:dryhard, "~> 0.1"},
       {:ecto_cursor_based_stream, "~> 1.0.2"},
-      {:uniq, "~> 0.6"},
+
+      ## ETS
       {:ets_select, "~> 0.1.2"},
-      {:data_tracer, "~> 0.1"},
+
+      ## PUB-SUB
+      {:phoenix_pubsub, "~> 2.1"},
+
+      ## UTIL
       {:json_serde, github: "maxohq/json_serde"},
+      {:liveness, "~> 1.0.0"},
+      {:uniq, "~> 0.6"},
+
+      ## DEBUG
+      {:data_tracer, "~> 0.1"},
+
+      ## DEV
       {:maxo_test_iex, "~> 0.1.7", only: [:test]},
       {:mneme, "~> 0.8", only: [:test]}
     ]
