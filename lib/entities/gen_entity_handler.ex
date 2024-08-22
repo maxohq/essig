@@ -9,11 +9,11 @@ defmodule Entities.GenEntityHandler do
       end
 
       defp via_tuple(uuid) do
-        Entities.Registry.via(__MODULE__, uuid)
+        Essig.Entities.Registry.via(__MODULE__, uuid)
       end
 
       def current_pid(uuid) do
-        Entities.Registry.get(__MODULE__, uuid)
+        Essig.Entities.Registry.get(__MODULE__, uuid)
       end
     end
   end

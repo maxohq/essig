@@ -1,4 +1,4 @@
-defmodule Es.Context do
+defmodule Essig.Context do
   @appkey {Context, :current_scope}
   def set_current_scope(uuid) do
     ProcDict.put(@appkey, uuid)
@@ -9,7 +9,8 @@ defmodule Es.Context do
   end
 
   def assert_current_scope! do
-    current_scope() || raise "Missing current_scope, set via: Es.Context.set_current_scope(uuid)!"
+    current_scope() ||
+      raise "Missing current_scope, set via: Essig.Context.set_current_scope(uuid)!"
   end
 
   @metakey {Context, :current_meta}

@@ -1,9 +1,9 @@
-defmodule Es.EventStore.AppendToStreamTest do
+defmodule Essig.EventStore.AppendToStreamTest do
   use Essig.DataCase
 
   describe "stream does not exist" do
     setup do
-      Es.Context.set_current_scope(Ecto.UUID7.generate())
+      Essig.Context.set_current_scope(Ecto.UUID7.generate())
       stream_uuid = Ecto.UUID7.generate()
 
       e1 = %Vecufy.TestReports.Events.TicketMatchAdded{
@@ -19,7 +19,7 @@ defmodule Es.EventStore.AppendToStreamTest do
       }
 
       {:ok, changes} =
-        Es.EventStore.AppendToStream.run(stream_uuid, "test-report-process", 0, [e1, e2])
+        Essig.EventStore.AppendToStream.run(stream_uuid, "test-report-process", 0, [e1, e2])
 
       %{changes: changes}
     end
@@ -48,7 +48,7 @@ defmodule Es.EventStore.AppendToStreamTest do
 
   describe "stream exists + expected value matches" do
     setup do
-      Es.Context.set_current_scope(Ecto.UUID7.generate())
+      Essig.Context.set_current_scope(Ecto.UUID7.generate())
       stream_uuid = Ecto.UUID7.generate()
 
       e1 = %Vecufy.TestReports.Events.TicketMatchAdded{
@@ -64,11 +64,11 @@ defmodule Es.EventStore.AppendToStreamTest do
       }
 
       {:ok, _changes} =
-        Es.EventStore.AppendToStream.run(stream_uuid, "test-report-process", 0, [e1, e2])
+        Essig.EventStore.AppendToStream.run(stream_uuid, "test-report-process", 0, [e1, e2])
 
       ## insert again, with adjusted expected seq value!
       {:ok, changes} =
-        Es.EventStore.AppendToStream.run(stream_uuid, "test-report-process", 2, [e1, e2])
+        Essig.EventStore.AppendToStream.run(stream_uuid, "test-report-process", 2, [e1, e2])
 
       %{changes: changes}
     end
@@ -97,7 +97,7 @@ defmodule Es.EventStore.AppendToStreamTest do
 
   describe "stream exists, yet expected seq does not match" do
     test "returns errors" do
-      Es.Context.set_current_scope(Ecto.UUID7.generate())
+      Essig.Context.set_current_scope(Ecto.UUID7.generate())
       uuid = Ecto.UUID7.generate()
 
       e1 = %Vecufy.TestReports.Events.TicketMatchAdded{
@@ -113,16 +113,17 @@ defmodule Es.EventStore.AppendToStreamTest do
       }
 
       # try appending with non-matching seq value
-      {:ok, _changes} = Es.EventStore.AppendToStream.run(uuid, "test-report-process", 0, [e1, e2])
+      {:ok, _changes} =
+        Essig.EventStore.AppendToStream.run(uuid, "test-report-process", 0, [e1, e2])
 
       {:error, :is_expected_seq, {:seq_mismatch, [2, 1]}, _changes} =
-        Es.EventStore.AppendToStream.run(uuid, "test-report-process", 1, [e1, e2])
+        Essig.EventStore.AppendToStream.run(uuid, "test-report-process", 1, [e1, e2])
     end
   end
 
   describe "stream exists, seq matches, yet stream type does not match" do
     test "returns errors" do
-      Es.Context.set_current_scope(Ecto.UUID7.generate())
+      Essig.Context.set_current_scope(Ecto.UUID7.generate())
       uuid = Ecto.UUID7.generate()
 
       e1 = %Vecufy.TestReports.Events.TicketMatchAdded{
@@ -137,11 +138,12 @@ defmodule Es.EventStore.AppendToStreamTest do
         kind: "telematics"
       }
 
-      {:ok, _changes} = Es.EventStore.AppendToStream.run(uuid, "test-report-process", 0, [e1, e2])
+      {:ok, _changes} =
+        Essig.EventStore.AppendToStream.run(uuid, "test-report-process", 0, [e1, e2])
 
       {:error, :stream, {:stream_type_mismatch, ["test-report-process", "wrong-stream-type"]},
        _changes} =
-        Es.EventStore.AppendToStream.run(uuid, "wrong-stream-type", 2, [e1, e2])
+        Essig.EventStore.AppendToStream.run(uuid, "wrong-stream-type", 2, [e1, e2])
     end
   end
 end

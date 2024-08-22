@@ -1,4 +1,4 @@
-defmodule Es.EventStore.ReadAllStreamBackward do
+defmodule Essig.EventStore.ReadAllStreamBackward do
   alias Es.Schemas.Event
   use Essig.Repo
 

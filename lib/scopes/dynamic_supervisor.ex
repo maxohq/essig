@@ -12,8 +12,8 @@ defmodule Scopes.DynamicSupervisor do
   end
 
   def start_child(scope) do
-    Es.Context.set_current_scope(scope)
-    spec = %{id: {Scopes.Server, scope}, start: {Scopes.Server, :start_link, [scope]}}
+    Essig.Context.set_current_scope(scope)
+    spec = %{id: {Essig.Scopes.Server, scope}, start: {Essig.Scopes.Server, :start_link, [scope]}}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 end

@@ -8,11 +8,11 @@ defmodule Casts.GenCastHandler do
       end
 
       defp via_tuple do
-        Casts.Registry.via(__MODULE__)
+        Essig.Casts.Registry.via(__MODULE__)
       end
 
       def current_pid do
-        Casts.Registry.get(__MODULE__)
+        Essig.Casts.Registry.get(__MODULE__)
       end
     end
   end

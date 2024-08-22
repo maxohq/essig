@@ -1,4 +1,4 @@
-defmodule Scopes.Server do
+defmodule Essig.Scopes.Server do
   use Supervisor
 
   def start_link(scope) do
@@ -13,8 +13,8 @@ defmodule Scopes.Server do
   def init(_init_arg) do
     # start 2 registries, that respect the current scope
     children = [
-      Casts.Registry,
-      Entities.Registry
+      Essig.Casts.Registry,
+      Essig.Entities.Registry
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

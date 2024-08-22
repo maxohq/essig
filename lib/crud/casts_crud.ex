@@ -24,7 +24,7 @@ defmodule Es.Crud.CastsCrud do
   Dryhard.delete(@resource)
 
   def get_cast_by_module(module) when is_binary(module) do
-    scope_uuid = Es.Context.current_scope()
+    scope_uuid = Essig.Context.current_scope()
     Repo.get_by(Es.Schemas.Cast, module: module, scope_uuid: scope_uuid)
   end
 

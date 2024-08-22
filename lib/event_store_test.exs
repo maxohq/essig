@@ -1,16 +1,16 @@
-defmodule Es.EventStoreTest do
+defmodule Essig.EventStoreTest do
   use Essig.DataCase
   alias alias Vecufy.TestReports.Events
   use MnemeDefaults
 
   setup do
-    Es.Context.set_current_scope(Ecto.UUID7.generate())
+    Essig.Context.set_current_scope(Ecto.UUID7.generate())
     :ok
   end
 
   def init_stream(uuid, seq) do
     {:ok, changes} =
-      Es.EventStore.append_to_stream(uuid, "test-report-process", seq, [
+      Essig.EventStore.append_to_stream(uuid, "test-report-process", seq, [
         %Events.ReqTestReportsUpdated{ops: []},
         %Events.ReqTestReportsUpdated{ops: []},
         %Events.ReqTestReportsUpdated{ops: []},
@@ -34,7 +34,7 @@ defmodule Es.EventStoreTest do
       init_stream(uuid2, 0)
       init_stream(uuid1, 10)
 
-      events = Es.EventStore.read_all_stream_forward(0, 11)
+      events = Essig.EventStore.read_all_stream_forward(0, 11)
       assert Enum.at(events, 0).stream_uuid == uuid1
       assert Enum.at(events, 0).seq == 1
       assert Enum.at(events, 1).stream_uuid == uuid1
@@ -60,7 +60,7 @@ defmodule Es.EventStoreTest do
       max_id = Enum.at(last_events, -1).id + 1
 
       # read last 11 events, 10 from stream1 and 1 event from stream2
-      events = Es.EventStore.read_all_stream_backward(max_id, 11)
+      events = Essig.EventStore.read_all_stream_backward(max_id, 11)
       assert Enum.at(events, 0).stream_uuid == uuid1
       assert Enum.at(events, 0).seq == 20
       assert Enum.at(events, 1).stream_uuid == uuid1
@@ -71,7 +71,7 @@ defmodule Es.EventStoreTest do
       assert Enum.at(events, 10).seq == 10
       max_id = Enum.at(events, 10).id + 1
 
-      events = Es.EventStore.read_all_stream_backward(max_id, 11)
+      events = Essig.EventStore.read_all_stream_backward(max_id, 11)
       assert Enum.at(events, 0).stream_uuid == uuid2
       assert Enum.at(events, 0).seq == 10
       assert Enum.at(events, 1).stream_uuid == uuid2
@@ -90,30 +90,30 @@ defmodule Es.EventStoreTest do
       init_stream(uuid, 0)
 
       {:ok, _a} =
-        Es.EventStore.append_to_stream(uuid, "test-report-process", 10, [
+        Essig.EventStore.append_to_stream(uuid, "test-report-process", 10, [
           %Events.TicketMatchAdded{id: 1, kind: "boot", match_kind: "auto"}
         ])
 
-      [e1, e2, e3] = Es.EventStore.read_stream_backward(uuid, 12, 3)
+      [e1, e2, e3] = Essig.EventStore.read_stream_backward(uuid, 12, 3)
       assert e1.seq == 11
       assert e2.seq == 10
       assert e3.seq == 9
 
-      [e1, e2, e3] = Es.EventStore.read_stream_backward(uuid, 9, 3)
+      [e1, e2, e3] = Essig.EventStore.read_stream_backward(uuid, 9, 3)
       assert e1.seq == 8
       assert e2.seq == 7
       assert e3.seq == 6
 
-      [e1, e2, e3] = Es.EventStore.read_stream_backward(uuid, 6, 3)
+      [e1, e2, e3] = Essig.EventStore.read_stream_backward(uuid, 6, 3)
       assert e1.seq == 5
       assert e2.seq == 4
       assert e3.seq == 3
 
-      [e1, e2] = Es.EventStore.read_stream_backward(uuid, 3, 3)
+      [e1, e2] = Essig.EventStore.read_stream_backward(uuid, 3, 3)
       assert e1.seq == 2
       assert e2.seq == 1
 
-      assert [] == Es.EventStore.read_stream_backward(uuid, 0, 3)
+      assert [] == Essig.EventStore.read_stream_backward(uuid, 0, 3)
     end
   end
 
@@ -123,30 +123,30 @@ defmodule Es.EventStoreTest do
       init_stream(uuid, 0)
 
       {:ok, _a} =
-        Es.EventStore.append_to_stream(uuid, "test-report-process", 10, [
+        Essig.EventStore.append_to_stream(uuid, "test-report-process", 10, [
           %Events.TicketMatchAdded{id: 1, kind: "bootloader", match_kind: "auto"}
         ])
 
-      [e1, e2, e3] = Es.EventStore.read_stream_forward(uuid, 0, 3)
+      [e1, e2, e3] = Essig.EventStore.read_stream_forward(uuid, 0, 3)
       assert e1.seq == 1
       assert e2.seq == 2
       assert e3.seq == 3
 
-      [e1, e2, e3] = Es.EventStore.read_stream_forward(uuid, 3, 3)
+      [e1, e2, e3] = Essig.EventStore.read_stream_forward(uuid, 3, 3)
       assert e1.seq == 4
       assert e2.seq == 5
       assert e3.seq == 6
 
-      [e1, e2, e3] = Es.EventStore.read_stream_forward(uuid, 6, 3)
+      [e1, e2, e3] = Essig.EventStore.read_stream_forward(uuid, 6, 3)
       assert e1.seq == 7
       assert e2.seq == 8
       assert e3.seq == 9
 
-      [e1, e2] = Es.EventStore.read_stream_forward(uuid, 9, 3)
+      [e1, e2] = Essig.EventStore.read_stream_forward(uuid, 9, 3)
       assert e1.seq == 10
       assert e2.seq == 11
 
-      assert [] == Es.EventStore.read_stream_forward(uuid, 11, 3)
+      assert [] == Essig.EventStore.read_stream_forward(uuid, 11, 3)
     end
   end
 
@@ -159,8 +159,8 @@ defmodule Es.EventStoreTest do
       }
 
       e1 = %Vecufy.TestReports.Events.MasterReportAdded{report: report}
-      {:ok, _} = Es.EventStore.append_to_stream(uuid, "trp", 0, [e1])
-      res = Es.EventStore.read_stream_forward(uuid, 0, 100)
+      {:ok, _} = Essig.EventStore.append_to_stream(uuid, "trp", 0, [e1])
+      res = Essig.EventStore.read_stream_forward(uuid, 0, 100)
 
       auto_assert(
         [

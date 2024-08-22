@@ -1,6 +1,6 @@
-defmodule Casts.Registry do
+defmodule Essig.Casts.Registry do
   def start_link(_) do
-    Es.Context.assert_current_scope!()
+    Essig.Context.assert_current_scope!()
     Registry.start_link(keys: :unique, name: reg_name())
   end
 
@@ -26,7 +26,7 @@ defmodule Casts.Registry do
   end
 
   def reg_name do
-    scope_name = Es.Context.current_scope()
+    scope_name = Essig.Context.current_scope()
     "#{__MODULE__}_#{scope_name}" |> String.to_atom()
   end
 

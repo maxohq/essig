@@ -1,4 +1,4 @@
-defmodule Es.EventStore.AppendToStream do
+defmodule Essig.EventStore.AppendToStream do
   use Essig.Repo
 
   def run(stream_uuid, stream_type, expected_seq, events) do
@@ -27,7 +27,7 @@ defmodule Es.EventStore.AppendToStream do
   end
 
   defp ensure_stream_exists(stream_uuid, stream_type) do
-    scope_uuid = Es.Context.current_scope()
+    scope_uuid = Essig.Context.current_scope()
 
     with {:ok, stream} <-
            Es.Crud.StreamsCrud.upsert_stream(%{
@@ -55,8 +55,8 @@ defmodule Es.EventStore.AppendToStream do
   end
 
   defp prepare_events(stream, events) do
-    scope_uuid = Es.Context.current_scope()
-    meta = Es.Context.current_meta()
+    scope_uuid = Essig.Context.current_scope()
+    meta = Essig.Context.current_meta()
 
     Enum.with_index(events)
     |> Enum.map(fn {item, index} ->

@@ -1,4 +1,4 @@
-defmodule Es.EventStore.LastSeq do
+defmodule Essig.EventStore.LastSeq do
   use Essig.Repo
 
   def run(stream_uuid) do

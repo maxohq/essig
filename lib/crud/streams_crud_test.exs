@@ -5,7 +5,7 @@ defmodule Es.Crud.StreamsCrudTest do
   test "check on required fields" do
     {:error, changeset} = StreamsCrud.create_stream(%{})
     errors = errors_on(changeset)
-    assert Map.keys(errors) == [:scope_uuid, :stream_type]
+    assert Map.keys(errors) |> Enum.sort() == [:scope_uuid, :stream_type]
     assert Map.get(errors, :stream_type) == ["can't be blank"]
   end
 

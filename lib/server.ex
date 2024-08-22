@@ -1,7 +1,7 @@
-defmodule EsServer do
+defmodule Essig.Server do
   def start_scope(scope) do
-    Es.Context.set_current_scope(scope)
-    Scopes.Server.start_link(scope)
+    Essig.Context.set_current_scope(scope)
+    Essig.Scopes.Server.start_link(scope)
   end
 
   ############ CASTS
@@ -13,7 +13,7 @@ defmodule EsServer do
   end
 
   def get_cast(module) do
-    Casts.Registry.get(module)
+    Essig.Casts.Registry.get(module)
   end
 
   ############ ENTITIES
@@ -23,6 +23,6 @@ defmodule EsServer do
   end
 
   def get_entity(module, uuid) do
-    Entities.Registry.get(module, uuid)
+    Essig.Entities.Registry.get(module, uuid)
   end
 end
