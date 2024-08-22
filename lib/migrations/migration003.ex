@@ -19,6 +19,7 @@ defmodule Migrations.Migration003 do
   end
 
   def drop_old! do
+    drop_if_exists(table(:es_apps))
     drop_if_exists(table(:es_events))
     drop_if_exists(table(:es_streams))
     drop_if_exists(table(:es_subscriptions))

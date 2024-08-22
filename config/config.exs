@@ -1,5 +1,9 @@
 import Config
 
+config :scoped,
+  ecto_repos: [Scoped.Repo],
+  generators: [timestamp_type: :utc_datetime]
+
 if config_env() == :dev do
   # setup for ecto_dev_logger (https://github.com/fuelen/ecto_dev_logger)
   config :scoped, Scoped.Repo, log: false
