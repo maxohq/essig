@@ -186,6 +186,37 @@ defmodule Essig.EventStoreTest do
     end
   end
 
+  describe "respects the current scope" do
+    test "when the scope is switched, the events from other scopes are not accessible and the seq order is correct!" do
+      scope1 = Essig.Context.current_scope()
+
+      Essig.Server.start_scope(scope1)
+      uuid1 = Essig.Ecto.UUID7.generate()
+      init_stream(uuid1, 0)
+
+      scope2 = Essig.Ecto.UUID7.generate()
+      Essig.Server.start_scope(scope2)
+      uuid2 = Essig.Ecto.UUID7.generate()
+      init_stream(uuid2, 0)
+
+      # switch to scope1
+      Essig.Server.start_scope(scope1)
+      events1 = Essig.EventStore.read_all_stream_forward(0, 3)
+
+      # switch to scope2
+      Essig.Server.start_scope(scope2)
+      events2 = Essig.EventStore.read_all_stream_forward(0, 3)
+
+      assert events1 != events2
+
+      assert Enum.map(events1, & &1.seq) == [1, 2, 3]
+      assert Enum.map(events2, & &1.seq) == [1, 2, 3]
+
+      assert Enum.map(events1, & &1.scope_uuid) |> Enum.uniq() == [scope1]
+      assert Enum.map(events2, & &1.scope_uuid) |> Enum.uniq() == [scope2]
+    end
+  end
+
   def anonym_ids(list) when is_list(list) do
     Enum.map(list, &anonym_ids/1)
   end
