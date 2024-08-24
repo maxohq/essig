@@ -41,8 +41,8 @@ defmodule SampleCast2 do
   end
 
   def handle_events(state, events) do
-    Enum.map(events, fn event -> handle_event(state, event) end)
-    {:ok, state}
+    res = Enum.map(events, fn event -> handle_event(state, event) end)
+    {:ok, res, state}
   end
 
   def handle_event(state, event) do
@@ -68,7 +68,7 @@ defmodule Essig.Casts.CastRunner do
   def init(args) do
     module = Keyword.fetch!(args, :module)
     apply(module, :bootstrap, [])
-    {:ok, %{module: module}}
+    {:ok, %{module: module, seq: 0, max_id: 0}}
   end
 
   def via_tuple(module) do
@@ -77,11 +77,20 @@ defmodule Essig.Casts.CastRunner do
 
   def handle_call({:send_events, events}, _from, state) do
     module = Map.fetch!(state, :module)
-    res = apply(module, :handle_events, [state, events])
-    {:reply, res, state}
+    {:ok, res, state} = apply(module, :handle_events, [state, events])
+    state = update_seq_and_max_id(state, events)
+    {:reply, {res, state}, state}
   end
 
   def handle_call(request, _from, state) do
     {:reply, request, state}
+  end
+
+  defp update_seq_and_max_id(state, events) do
+    seq = Map.fetch!(state, :seq)
+    max_id = Map.fetch!(state, :max_id)
+    new_seq = seq + length(events)
+    new_max_id = Enum.reduce(events, max_id, fn event, acc -> max(acc, event.id) end)
+    %{state | seq: new_seq, max_id: new_max_id}
   end
 end
