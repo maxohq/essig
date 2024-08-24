@@ -5,20 +5,20 @@ defmodule Essig.ServerTest do
   describe "full_run" do
     test "works with casts" do
       Essig.Server.start_scope("app1")
-      Essig.Server.start_casts([Casts.Cast1, Casts.Cast2])
+      Essig.Server.start_casts([SampleCast1, SampleCast2])
       pid = Essig.Scopes.Registry.get("app1")
       assert is_pid(pid)
       assert "app1" in Essig.Scopes.Registry.keys()
 
-      assert is_pid(Essig.Server.get_cast(Casts.Cast1))
-      assert is_pid(Essig.Server.get_cast(Casts.Cast2))
+      assert is_pid(Essig.Server.get_cast(SampleCast1))
+      assert is_pid(Essig.Server.get_cast(SampleCast2))
 
       Process.flag(:trap_exit, true)
       GenServer.stop(pid)
       assert eventually(fn -> Essig.Scopes.Registry.get("app1") == nil end)
 
       assert_raise ArgumentError, "unknown registry: Essig.Casts.Registry_app1", fn ->
-        is_pid(Essig.Server.get_cast(Casts.Cast1))
+        is_pid(Essig.Server.get_cast(SampleCast1))
       end
 
       refute "app1" in Essig.Scopes.Registry.keys()

@@ -17,7 +17,7 @@ defmodule Essig.Server do
 
   def start_casts(modules) do
     Enum.map(modules, fn module ->
-      apply(module, :start_link, [:any])
+      Essig.Casts.CastRunner.start_link(module: module)
     end)
   end
 

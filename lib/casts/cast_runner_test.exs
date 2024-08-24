@@ -10,15 +10,13 @@ defmodule Essig.Casts.CastRunnerTest do
 
   describe "start_link/1" do
     test "starts a CastRunner process for a given module" do
-      assert {:ok, _pid} = CastRunner.start_link(module: SampleCast1)
-      assert {:ok, _pid} = CastRunner.start_link(module: SampleCast2)
+      assert [{:ok, _}, {:ok, _}] = Essig.Server.start_casts([SampleCast1, SampleCast2])
     end
   end
 
   describe "send_events/2" do
     setup do
-      CastRunner.start_link(module: SampleCast1)
-      CastRunner.start_link(module: SampleCast2)
+      Essig.Server.start_casts([SampleCast1, SampleCast2])
       :ok
     end
 
@@ -36,8 +34,7 @@ defmodule Essig.Casts.CastRunnerTest do
 
   describe "metadata" do
     setup do
-      CastRunner.start_link(module: SampleCast1)
-      CastRunner.start_link(module: SampleCast2)
+      Essig.Server.start_casts([SampleCast1, SampleCast2])
       :ok
     end
 
