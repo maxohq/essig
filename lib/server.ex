@@ -4,13 +4,10 @@ defmodule Essig.Server do
   def start_scope(scope) do
     Essig.Context.set_current_scope(scope)
     Essig.Scopes.Server.start_link(scope)
-
-    eventually(fn ->
-      Essig.Casts.Registry.is_running?() && Essig.Entities.Registry.is_running?()
-    end)
-
+    eventually(&check_registry_is_running/0, 250, 1)
     Essig.Casts.MetaTable.init()
     Essig.Entities.MetaTable.init()
+    :ok
   end
 
   ############ CASTS
@@ -33,5 +30,11 @@ defmodule Essig.Server do
 
   def get_entity(module, uuid) do
     Essig.Entities.Registry.get(module, uuid)
+  end
+
+  ############# PRIVATE
+
+  defp check_registry_is_running() do
+    Essig.Casts.Registry.is_running?() && Essig.Entities.Registry.is_running?()
   end
 end

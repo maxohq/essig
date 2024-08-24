@@ -1,14 +1,18 @@
 defmodule Essig.Casts.CastRunner do
   use GenServer
 
-  def start_link(args) do
-    module = Keyword.fetch!(args, :module)
-    GenServer.start_link(__MODULE__, args, name: via_tuple(module))
-  end
+  ##### PUBLIC API
 
   def send_events(module, events) do
     pid = Essig.Casts.Registry.get(module)
     GenServer.call(pid, {:send_events, events})
+  end
+
+  ######## GENSERVER
+
+  def start_link(args) do
+    module = Keyword.fetch!(args, :module)
+    GenServer.start_link(__MODULE__, args, name: via_tuple(module))
   end
 
   def init(args) do
@@ -17,7 +21,7 @@ defmodule Essig.Casts.CastRunner do
     {:ok, %{module: module, seq: 0, max_id: 0}}
   end
 
-  def via_tuple(module) do
+  defp via_tuple(module) do
     Essig.Casts.Registry.via(module)
   end
 
