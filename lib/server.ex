@@ -1,7 +1,14 @@
 defmodule Essig.Server do
+  import Liveness
+
   def start_scope(scope) do
     Essig.Context.set_current_scope(scope)
     Essig.Scopes.Server.start_link(scope)
+
+    eventually(fn ->
+      Essig.Casts.Registry.is_running?() && Essig.Entities.Registry.is_running?()
+    end)
+
     Essig.Casts.MetaTable.init()
     Essig.Entities.MetaTable.init()
   end

@@ -4,6 +4,8 @@ defmodule Essig.Casts.Registry do
     Registry.start_link(keys: :unique, name: reg_name())
   end
 
+  def is_running?, do: Process.whereis(reg_name())
+
   def child_spec(opts) do
     %{
       id: reg_name(),

@@ -14,8 +14,8 @@ defmodule SampleCast1 do
   end
 
   def handle_events(state, events) do
-    Enum.map(events, fn event -> handle_event(state, event) end)
-    {:ok, state}
+    res = Enum.map(events, fn event -> handle_event(state, event) end)
+    {:ok, res, state}
   end
 
   def handle_event(state, event) do
