@@ -1,6 +1,6 @@
 defmodule Essig.EventStoreTest do
   use Essig.DataCase
-  alias alias CustomApp.TestReports.Events
+  alias CustomApp.TestReports.Events
   use MnemeDefaults
 
   setup do
