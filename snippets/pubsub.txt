@@ -1,0 +1,6 @@
+alias Phoenix.PubSub
+PubSub.Supervisor.start_link(name: :essig_pubsub)
+PubSub.subscribe(:essig_pubsub, "user:123")
+Process.info(self(), :messages)
+PubSub.broadcast(:essig_pubsub, "user:123", {:user_update, %{id: 123, name: "Shane"}})
+PubSub.unsubscribe(:essig_pubsub, "user:123")
