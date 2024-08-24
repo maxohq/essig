@@ -74,17 +74,15 @@ defmodule Essig.EventStore.AppendToStream do
   end
 
   defp insert_events(event_payloads) do
-    events =
-      Enum.map(event_payloads, fn event_payload ->
-        with {:ok, event} <- Essig.Crud.EventsCrud.create_event(event_payload) do
-          event
-        end
-      end)
-
-    if(Enum.any?(events, fn item -> match?({:error, _}, item) end)) do
-      {:error, events}
-    else
-      {:ok, events}
+    Enum.reduce_while(event_payloads, [], fn event_payload, acc ->
+      case Essig.Crud.EventsCrud.create_event(event_payload) do
+        {:ok, event} -> {:cont, [event | acc]}
+        {:error, _} = error -> {:halt, error}
+      end
+    end)
+    |> case do
+      {:error, _} = error -> error
+      events -> {:ok, Enum.reverse(events)}
     end
   end
 end
