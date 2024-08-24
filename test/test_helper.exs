@@ -4,4 +4,4 @@ ExUnit.start(trace: true)
 Ecto.Adapters.SQL.Sandbox.mode(Essig.Repo, :manual)
 
 ## Mneme setup
-Mneme.start(restart: true)
+Mneme.start()
