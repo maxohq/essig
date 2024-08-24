@@ -2,6 +2,8 @@ defmodule Essig.Server do
   def start_scope(scope) do
     Essig.Context.set_current_scope(scope)
     Essig.Scopes.Server.start_link(scope)
+    Essig.Casts.MetaTable.init()
+    Essig.Entities.MetaTable.init()
   end
 
   ############ CASTS
