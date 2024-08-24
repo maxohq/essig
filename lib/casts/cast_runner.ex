@@ -91,6 +91,7 @@ defmodule Essig.Casts.CastRunner do
     max_id = Map.fetch!(state, :max_id)
     new_seq = seq + length(events)
     new_max_id = Enum.reduce(events, max_id, fn event, acc -> max(acc, event.id) end)
+    Essig.Casts.MetaTable.update(state.module, %{seq: new_seq, max_id: new_max_id})
     %{state | seq: new_seq, max_id: new_max_id}
   end
 end
