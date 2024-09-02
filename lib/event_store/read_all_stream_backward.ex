@@ -1,5 +1,4 @@
 defmodule Essig.EventStore.ReadAllStreamBackward do
-  alias Essig.Schemas.Event
   use Essig.Repo
 
   def run(from_id, amount) do
