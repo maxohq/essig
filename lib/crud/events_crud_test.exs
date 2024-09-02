@@ -24,8 +24,8 @@ defmodule Essig.Crud.EventsCrudTest do
   end
 
   test "creates proper events" do
-    stream_uuid = Essig.Ecto.UUID7.generate()
-    scope_uuid = Essig.Ecto.UUID7.generate()
+    stream_uuid = Essig.UUID7.generate()
+    scope_uuid = Essig.UUID7.generate()
 
     {:ok, _stream} =
       StreamsCrud.create_stream(%{

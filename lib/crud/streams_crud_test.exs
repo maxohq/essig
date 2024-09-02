@@ -10,7 +10,7 @@ defmodule Essig.Crud.StreamsCrudTest do
   end
 
   test "creates a minimal stream record" do
-    scope_uuid = Essig.Ecto.UUID7.generate()
+    scope_uuid = Essig.UUID7.generate()
 
     {:ok, stream} =
       StreamsCrud.create_stream(%{scope_uuid: scope_uuid, stream_type: "user", seq: 1})
@@ -19,8 +19,8 @@ defmodule Essig.Crud.StreamsCrudTest do
   end
 
   test "prevents duplicates" do
-    uuid = Essig.Ecto.UUID7.generate()
-    scope_uuid = Essig.Ecto.UUID7.generate()
+    uuid = Essig.UUID7.generate()
+    scope_uuid = Essig.UUID7.generate()
 
     {:ok, stream} =
       StreamsCrud.create_stream(%{
@@ -44,8 +44,8 @@ defmodule Essig.Crud.StreamsCrudTest do
   end
 
   test "updates the seq on equal streams (upsert_stream)" do
-    uuid = Essig.Ecto.UUID7.generate()
-    scope_uuid = Essig.Ecto.UUID7.generate()
+    uuid = Essig.UUID7.generate()
+    scope_uuid = Essig.UUID7.generate()
 
     {:ok, stream} =
       StreamsCrud.upsert_stream(%{

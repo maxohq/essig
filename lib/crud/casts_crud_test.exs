@@ -10,13 +10,13 @@ defmodule Essig.CastsCrudTest do
   end
 
   test "provides defaults for numeric values" do
-    uuid = Essig.Ecto.UUID7.generate()
+    uuid = Essig.UUID7.generate()
     {:ok, cast} = CastsCrud.create_cast(%{module: "module-1", scope_uuid: uuid, seq: 1})
     assert cast.status == :new
   end
 
   test "prevents duplicate casts with same module" do
-    uuid = Essig.Ecto.UUID7.generate()
+    uuid = Essig.UUID7.generate()
     {:ok, _cast} = CastsCrud.create_cast(%{module: "module-1", scope_uuid: uuid, seq: 1})
     {:error, changeset} = CastsCrud.create_cast(%{module: "module-1", scope_uuid: uuid, seq: 2})
     errors = errors_on(changeset)
@@ -24,7 +24,7 @@ defmodule Essig.CastsCrudTest do
   end
 
   test "allows updating the `max_id` value via upsert on (module)" do
-    uuid = Essig.Ecto.UUID7.generate()
+    uuid = Essig.UUID7.generate()
     {:ok, cast} = CastsCrud.create_cast(%{module: "module-1", scope_uuid: uuid, seq: 1})
 
     {:ok, cast2} =

@@ -1,4 +1,4 @@
-defmodule Essig.Ecto.UUID7 do
+defmodule Essig.UUID7 do
   @moduledoc """
   wrapper around Uniq.UUID
   """
