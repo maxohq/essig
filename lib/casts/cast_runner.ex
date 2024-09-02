@@ -1,6 +1,8 @@
 defmodule Essig.Casts.CastRunner do
   use GenServer
 
+  defstruct key: nil, seq: nil, max_id: nil, module: nil, row: nil
+
   ##### PUBLIC API
 
   def send_events(module, events) do
@@ -19,10 +21,10 @@ defmodule Essig.Casts.CastRunner do
     module = Keyword.fetch!(args, :module)
     apply(module, :bootstrap, [])
     {:ok, row} = fetch_from_db_or_init(module)
-    init_data = %{key: module, seq: row.seq, max_id: row.max_id, module: module}
-    Essig.Casts.MetaTable.set(module, init_data)
-    init_data = Map.put(init_data, :row, row)
-    {:ok, init_data}
+    meta_data = %__MODULE__{key: module, seq: row.seq, max_id: row.max_id, module: module}
+    Essig.Casts.MetaTable.set(module, meta_data)
+    state = Map.put(meta_data, :row, row)
+    {:ok, state}
   end
 
   defp via_tuple(module) do
@@ -33,6 +35,7 @@ defmodule Essig.Casts.CastRunner do
     module = Map.fetch!(state, :key)
     {:ok, res, state} = apply(module, :handle_events, [state, events])
     state = update_seq_and_max_id(state, events)
+    state = update_db(state)
     {:reply, {res, state}, state}
   end
 
@@ -47,6 +50,13 @@ defmodule Essig.Casts.CastRunner do
     new_max_id = Enum.reduce(events, max_id, fn event, acc -> max(acc, event.id) end)
     Essig.Casts.MetaTable.update(state.module, %{seq: new_seq, max_id: new_max_id})
     %{state | seq: new_seq, max_id: new_max_id}
+  end
+
+  defp update_db(state) do
+    {:ok, row} =
+      Essig.Crud.CastsCrud.update_cast(state.row, %{seq: state.seq, max_id: state.max_id})
+
+    Map.put(state, :row, row)
   end
 
   defp fetch_from_db_or_init(module) do
