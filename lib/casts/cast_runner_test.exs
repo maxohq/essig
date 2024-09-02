@@ -27,8 +27,19 @@ defmodule Essig.Casts.CastRunnerTest do
       CastRunner.send_events(SampleCast2, events)
 
       # Assert that the events were processed by the respective CastRunners
-      assert MetaTable.get(SampleCast1) == %{key: SampleCast1, max_id: 100, seq: 2}
-      assert MetaTable.get(SampleCast2) == %{key: SampleCast2, max_id: 100, seq: 2}
+      assert MetaTable.get(SampleCast1) == %{
+               key: SampleCast1,
+               module: SampleCast1,
+               max_id: 100,
+               seq: 2
+             }
+
+      assert MetaTable.get(SampleCast2) == %{
+               key: SampleCast2,
+               module: SampleCast2,
+               max_id: 100,
+               seq: 2
+             }
     end
   end
 
@@ -46,8 +57,19 @@ defmodule Essig.Casts.CastRunnerTest do
       CastRunner.send_events(SampleCast2, events)
 
       # # Assert the metadata for each CastRunner
-      assert MetaTable.get(SampleCast1) == %{key: SampleCast1, max_id: 100, seq: 2}
-      assert MetaTable.get(SampleCast2) == %{key: SampleCast2, max_id: 100, seq: 4}
+      assert MetaTable.get(SampleCast1) == %{
+               key: SampleCast1,
+               module: SampleCast1,
+               max_id: 100,
+               seq: 2
+             }
+
+      assert MetaTable.get(SampleCast2) == %{
+               key: SampleCast2,
+               module: SampleCast2,
+               max_id: 100,
+               seq: 4
+             }
     end
   end
 end

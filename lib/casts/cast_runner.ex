@@ -18,7 +18,9 @@ defmodule Essig.Casts.CastRunner do
   def init(args) do
     module = Keyword.fetch!(args, :module)
     apply(module, :bootstrap, [])
-    {:ok, %{module: module, seq: 0, max_id: 0}}
+    init_data = %{key: module, seq: 0, max_id: 0, module: module}
+    Essig.Casts.MetaTable.set(module, init_data)
+    {:ok, init_data}
   end
 
   defp via_tuple(module) do
@@ -26,7 +28,7 @@ defmodule Essig.Casts.CastRunner do
   end
 
   def handle_call({:send_events, events}, _from, state) do
-    module = Map.fetch!(state, :module)
+    module = Map.fetch!(state, :key)
     {:ok, res, state} = apply(module, :handle_events, [state, events])
     state = update_seq_and_max_id(state, events)
     {:reply, {res, state}, state}
