@@ -6,6 +6,18 @@ defmodule Essig.EventStore do
            Essig.EventStore.AppendToStream.run(stream_uuid, stream_type, expected_seq, events) do
       events = res.insert_events
       stream = res.update_seq
+
+      scope_uuid = Essig.Context.current_scope()
+
+      # Broadcast the events
+      Enum.each(events, fn event ->
+        Phoenix.PubSub.broadcast(
+          Essig.PubSub,
+          "events:#{scope_uuid}",
+          {:new_event, event}
+        )
+      end)
+
       {:ok, %{stream: stream, events: events}}
     end
   end
