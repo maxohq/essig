@@ -1,10 +1,11 @@
 defmodule Essig.Casts.CastRunnerTest do
-  use ExUnit.Case, async: true
+  use Essig.DataCase
   alias Essig.Casts.CastRunner
   alias Essig.Casts.MetaTable
 
   setup %{test: test_name} do
-    Essig.Server.start_scope(test_name)
+    scope_uuid = Essig.UUID7.generate()
+    Essig.Server.start_scope(scope_uuid)
     :ok
   end
 

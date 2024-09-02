@@ -1,5 +1,5 @@
 defmodule Essig.ServerTest do
-  use ExUnit.Case, async: true
+  use Essig.DataCase
   import Liveness
 
   describe "full_run" do
