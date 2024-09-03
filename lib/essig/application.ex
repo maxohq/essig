@@ -7,7 +7,7 @@ defmodule Essig.Application do
   def start(_type, _args) do
     children = [
       Essig.Repo,
-      Essig.SandRepo,
+      Essig.RepoSingleConn,
       {Phoenix.PubSub, name: Essig.PubSub},
       {Registry, keys: :unique, name: Essig.Scopes.Registry},
       Essig.Scopes.DynamicSupervisor

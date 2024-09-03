@@ -1,10 +1,10 @@
-defmodule Essig.SandRepo do
+defmodule Essig.RepoSingleConn do
   @moduledoc """
-  This is special SandRepo, that allows checking out a single connection.
+  This is special RepoSingleConn, with a single connection.
   We use this when getting a DB advisory lock and releasing it afterwards.
   This is not possible with the standard Ecto.Repo outside of a transaction.
 
-  To keep the configuration overhead low, we use dynamic config (init -callback) and
+  To keep the configuration overhead low, we use dynamic config (init-callback) and
   copy the main config for the Essig.Repo with a few tweaks.
   This means the DB config stays unchanged.
   """
@@ -19,7 +19,7 @@ defmodule Essig.SandRepo do
   def init(_type, _config) do
     special_config = [
       telemetry_prefix: [:essig, :sand_repo],
-      pool: Ecto.Adapters.SQL.Sandbox
+      pool_size: 1
     ]
 
     main_config = Application.get_env(:essig, Essig.Repo)
@@ -30,7 +30,7 @@ defmodule Essig.SandRepo do
 
   defmacro __using__(_) do
     quote do
-      alias Essig.SandRepo
+      alias Essig.RepoSingleConn
       require Ecto.Query
       import Ecto.Query
       import Ecto.Changeset
