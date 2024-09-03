@@ -2,6 +2,15 @@ defmodule Essig.EventStore.AppendToStream do
   use Essig.Repo
 
   def run(stream_uuid, stream_type, expected_seq, events) do
+    # To ensure sequential inserts only, we use locking.
+    # The likelihood of this triggering in production is low, but still possible.
+    # Locks are across all OS processes, since we use Postgres for this.
+    Essig.PGLock.with_lock("es-insert", fn ->
+      run_unprotected(stream_uuid, stream_type, expected_seq, events)
+    end)
+  end
+
+  defp run_unprotected(stream_uuid, stream_type, expected_seq, events) do
     multi(stream_uuid, stream_type, expected_seq, events)
     |> Repo.transaction()
   end
