@@ -19,12 +19,14 @@ defmodule Migrations.Migration003 do
             "DROP TRIGGER essig_add_xid_to_signals;"
 
     execute "
-            -- Function to notify on new transactions (events) via pg_notify
+
             CREATE OR REPLACE FUNCTION notify_new_events()
               RETURNS TRIGGER AS $$
               DECLARE
                 payload JSON;
               BEGIN
+                -- Function to notify on new transactions (events) via pg_notify
+
                 payload := json_build_object(
                   'scope_uuid', NEW.scope_uuid,
                   '_xid', NEW._xid,

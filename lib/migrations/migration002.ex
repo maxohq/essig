@@ -11,6 +11,9 @@ defmodule Migrations.Migration002 do
             CREATE OR REPLACE FUNCTION essig_add_xid_snapmin()
             RETURNS TRIGGER AS $$
             BEGIN
+                -- we add current transaction id and minimal LSN
+                -- based on suggestions here: https://github.com/josevalim/sync/blob/main/priv/repo/migrations/20240806131210_create_publication.exs
+
                 NEW._xid := pg_current_xact_id();
                 NEW._snapmin := pg_snapshot_xmin(pg_current_snapshot());
                 RETURN NEW;
