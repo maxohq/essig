@@ -33,6 +33,9 @@ defmodule Essig.EventStore.AppendToStream do
       last_event = Enum.at(insert_events, -1)
       Essig.Crud.StreamsCrud.update_stream(stream, %{seq: last_event.seq})
     end)
+    |> Ecto.Multi.run(:signal_new_events, fn _repo, _ ->
+      signal_new_events()
+    end)
   end
 
   defp ensure_stream_exists(stream_uuid, stream_type) do
@@ -93,5 +96,15 @@ defmodule Essig.EventStore.AppendToStream do
       {:error, _} = error -> error
       events -> {:ok, Enum.reverse(events)}
     end
+  end
+
+  defp signal_new_events() do
+    scope_uuid = Essig.Context.current_scope()
+    bin_uuid = Ecto.UUID.dump!(scope_uuid)
+
+    {:ok, _} =
+      Repo.query("insert into essig_signals(scope_uuid) values ($1)", [bin_uuid])
+
+    {:ok, true}
   end
 end
