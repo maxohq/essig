@@ -15,6 +15,10 @@ defmodule Essig.Schemas.Event do
 
     field(:seq, :integer)
 
+    ## transaction metadata
+    field(:_xid, :integer, read_after_writes: true)
+    field(:_snapmin, :integer, read_after_writes: true)
+
     # no updated_at!
     timestamps(type: :utc_datetime_usec, updated_at: false)
   end
