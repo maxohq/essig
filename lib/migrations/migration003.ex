@@ -18,8 +18,6 @@ defmodule Migrations.Migration003 do
             ",
             "DROP TRIGGER essig_add_txid_to_signals;"
 
-    execute "drop function if exists notify_new_events CASCADE", ""
-
     execute """
             CREATE OR REPLACE FUNCTION notify_new_events()
               RETURNS TRIGGER AS $$
