@@ -18,6 +18,6 @@ defmodule Essig.Checker do
       ])
 
     # this will be unnecessary soon
-    Essig.Casts.CastRunner.send_events(SampleCast1, events)
+    # Essig.Casts.CastRunner.send_events(SampleCast1, events)
   end
 end

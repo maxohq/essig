@@ -26,7 +26,6 @@ defmodule Essig.PGNotifyListener do
   end
 
   def rebroadcast(map) do
-    # "{\"scope_uuid\" : \"0191bca1-36d5-7235-8084-6d955e50f6dc\", \"_xid\" : 182310, \"_snapmin\" : 182310}
     map = Essig.Helpers.Map.atomize_keys(map)
     Essig.Pubsub.broadcast("new_events", {:new_events, map})
   end

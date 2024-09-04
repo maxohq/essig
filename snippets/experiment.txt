@@ -3,15 +3,15 @@ DROP TABLE IF EXISTS rows;
 CREATE TABLE rows (
   id SERIAL PRIMARY KEY,
   name varchar,
-  xid bigserial NOT NULL,
+  txid bigserial NOT NULL,
   snapmin bigserial NOT NULL,
   timestamp timestamp default current_timestamp
 );
 
-CREATE OR REPLACE FUNCTION pgx_add_xid()
+CREATE OR REPLACE FUNCTION pgx_add_txid()
   RETURNS TRIGGER AS $$
   BEGIN
-      NEW.xid := pg_current_xact_id();
+      NEW.txid := pg_current_xact_id();
       NEW.snapmin := pg_snapshot_xmin(pg_current_snapshot());
       RETURN NEW;
   END;
@@ -19,13 +19,13 @@ CREATE OR REPLACE FUNCTION pgx_add_xid()
 
 
 
-CREATE OR REPLACE TRIGGER pgx_add_xid_before_insert_update
+CREATE OR REPLACE TRIGGER pgx_add_txid_before_insert_update
     BEFORE INSERT OR UPDATE ON rows
     FOR EACH ROW
-    EXECUTE FUNCTION pgx_add_xid();
+    EXECUTE FUNCTION pgx_add_txid();
 
 
--- run this in 2 psql shells, interleaving the inserts. this helps to see the xid vs snapmin relationship --
+-- run this in 2 psql shells, interleaving the inserts. this helps to see thetxid vs snapmin relationship --
 
 begin;
 insert into rows (name) values ('1');
