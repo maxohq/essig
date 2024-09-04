@@ -1,10 +1,9 @@
 defmodule Essig.PGLock do
   @moduledoc """
   A simple wrapper around pg_try_advisory_lock and pg_advisory_unlock.
-  To get consistent PG connection, it uses second Repo with pool_size=1
-
+  To get a consistent PG connection, it uses a second Repo with pool_size=1.
   This makes it possible to use the same connection for locking and releasing the lock!
-  Because releasing the lock on a different connection than locking it will fail.
+  Because releasing the lock on a different connection than the one it was created wont work.
   This is the best workaround I could come up with.
 
 
@@ -17,7 +16,7 @@ defmodule Essig.PGLock do
   use Essig.RepoSingleConn
 
   def with_lock(kind, fun) do
-    lock_key = :erlang.phash2("#{kind}-#{Essig.Context.current_scope()}")
+    lock_key = :erlang.phash2([Essig.Context.current_scope(), kind])
 
     case get_lock(lock_key) do
       {:ok, %{rows: [[true]]}} ->
