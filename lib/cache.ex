@@ -18,7 +18,7 @@ defmodule Essig.Cache do
 
   @behaviour :gen_statem
 
-  defstruct busy: %{}, cache: %{}
+  defstruct busy: %{}, cache: %{}, last_used: %{}
 
   def start_link(opts \\ []), do: :gen_statem.start_link(__MODULE__, [], opts)
 
@@ -48,20 +48,20 @@ defmodule Essig.Cache do
   end
 
   def handle_event({:call, from}, {:remove, request}, _state, data) do
-    data = remove_from_cache(data, request)
+    data = remove_from_cache(data, request) |> remove_last_used(request)
     {:keep_state, data, [{:reply, from, :ok}]}
   end
 
   #
   def handle_event({:call, from}, {:request, request}, _, data) do
-    res = get_from_cache(data, request)
+    {res, data} = get_from_cache(data, request)
     in_busy = is_busy_for_request(data, request)
 
     cond do
       # we have a result in cache, so we reply immediately
       res != nil ->
         actions = [{:reply, from, res}]
-        {:keep_state_and_data, actions}
+        {:keep_state, data, actions}
 
       # we are already busy with this request, so we postpone
       in_busy ->
@@ -116,6 +116,21 @@ defmodule Essig.Cache do
   end
 
   defp get_from_cache(data, request) do
-    Map.get(data.cache, request, nil)
+    res = Map.get(data.cache, request, nil)
+
+    if res do
+      {res, update_last_used(data, request)}
+    else
+      {nil, data}
+    end
+  end
+
+  def update_last_used(data, request) do
+    time = :erlang.monotonic_time()
+    %__MODULE__{data | last_used: Map.put(data.last_used, request, time)}
+  end
+
+  def remove_last_used(data, request) do
+    %__MODULE__{data | last_used: Map.delete(data.last_used, request)}
   end
 end

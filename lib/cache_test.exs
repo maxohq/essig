@@ -54,7 +54,7 @@ defmodule Essig.CacheTest do
       Task.await_many(pop_tasks ++ fetch_tasks)
 
       assert Cache.request(pid, req_tuple(1)) == "RESULT: 1"
-      state = Cache.get_state(pid)
+      state = clean_state(pid)
 
       assert state ==
                %Essig.Cache{
@@ -75,10 +75,14 @@ defmodule Essig.CacheTest do
       Cache.request(pid, req_tuple(2))
       Cache.remove(pid, req_tuple(1))
 
-      assert Cache.get_state(pid) == %Essig.Cache{
+      assert clean_state(pid) == %Essig.Cache{
                busy: %{},
                cache: %{{Essig.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2"}
              }
     end
+  end
+
+  def clean_state(pid) do
+    Cache.get_state(pid) |> Map.put(:last_used, %{})
   end
 end
