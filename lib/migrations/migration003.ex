@@ -5,6 +5,7 @@ defmodule Migrations.Migration003 do
     create table(:essig_signals, primary_key: false) do
       add(:id, :bigserial, primary_key: true)
       add(:scope_uuid, :uuid, null: false, default: fragment("gen_random_uuid()"))
+      add(:stream_uuid, :uuid, null: false)
       add(:txid, :bigint)
       add(:snapmin, :bigint)
     end
@@ -27,6 +28,7 @@ defmodule Migrations.Migration003 do
                 -- Function to notify on new transactions (events) via pg_notify
                 payload := json_build_object(
                   'scope_uuid', NEW.scope_uuid,
+                  'stream_uuid', NEW.stream_uuid,
                   'txid', NEW.txid,
                   'snapmin', NEW.snapmin
                 );
