@@ -57,15 +57,28 @@ defmodule Essig.CacheTest do
       state = Cache.get_state(pid)
 
       assert state ==
-               {%{},
-                %Essig.Cache{
-                  busy: %{},
-                  cache: %{
-                    {Essig.CacheTest.ReqBackend, :fetch, [1]} => "RESULT: 1",
-                    {Essig.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2",
-                    {Essig.CacheTest.ReqBackend, :fetch, [3]} => "RESULT: 3"
-                  }
-                }}
+               %Essig.Cache{
+                 busy: %{},
+                 cache: %{
+                   {Essig.CacheTest.ReqBackend, :fetch, [1]} => "RESULT: 1",
+                   {Essig.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2",
+                   {Essig.CacheTest.ReqBackend, :fetch, [3]} => "RESULT: 3"
+                 }
+               }
+    end
+  end
+
+  describe "remove_cache" do
+    test "works" do
+      {:ok, pid} = Cache.start_link([])
+      Cache.request(pid, req_tuple(1))
+      Cache.request(pid, req_tuple(2))
+      Cache.remove(pid, req_tuple(1))
+
+      assert Cache.get_state(pid) == %Essig.Cache{
+               busy: %{},
+               cache: %{{Essig.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2"}
+             }
     end
   end
 end

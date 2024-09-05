@@ -34,6 +34,7 @@ defmodule Essig.Cache do
   ### PUBLIC API ###
 
   def request(pid, request), do: :gen_statem.call(pid, {:request, request})
+  def remove(pid, request), do: :gen_statem.call(pid, {:remove, request})
   def get_state(pid), do: :gen_statem.call(pid, :get_state)
 
   ### INTERNAL ###
@@ -42,8 +43,13 @@ defmodule Essig.Cache do
   def handle_event(:enter, _before_state, _after_state, _data), do: {:keep_state_and_data, []}
 
   # just return state / data
-  def handle_event({:call, from}, :get_state, state, data) do
-    {:keep_state, data, [{:reply, from, {state, data}}]}
+  def handle_event({:call, from}, :get_state, _state, data) do
+    {:keep_state, data, [{:reply, from, data}]}
+  end
+
+  def handle_event({:call, from}, {:remove, request}, _state, data) do
+    data = remove_from_cache(data, request)
+    {:keep_state, data, [{:reply, from, :ok}]}
   end
 
   #
@@ -103,6 +109,10 @@ defmodule Essig.Cache do
 
   defp store_in_cache(data, request, res) do
     %__MODULE__{data | cache: Map.put(data.cache, request, res)}
+  end
+
+  defp remove_from_cache(data, request) do
+    %__MODULE__{data | cache: Map.delete(data.cache, request)}
   end
 
   defp get_from_cache(data, request) do
