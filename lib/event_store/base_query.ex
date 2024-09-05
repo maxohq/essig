@@ -1,4 +1,4 @@
-defmodule EventStore.BaseQuery do
+defmodule Essig.EventStore.BaseQuery do
   alias Essig.Schemas.Event
   use Essig.Repo
 
