@@ -14,7 +14,7 @@ defmodule Essig.Checker do
 
     seq = Essig.EventStore.last_seq(stream_uuid)
 
-    {:ok, %{events: events}} =
+    {:ok, %{events: _events}} =
       Essig.EventStore.append_to_stream(stream_uuid, "trp", seq, [
         %Sample.TestReports.Events.MasterReportAdded{path: "local/path/to", report: "report 1"},
         %Sample.TestReports.Events.MasterReportAdded{path: "local/path/to", report: "report 2"},
