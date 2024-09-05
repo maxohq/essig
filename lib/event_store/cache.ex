@@ -1,9 +1,21 @@
 defmodule Essig.EventStore.Cache do
+  @moduledoc """
+  Cache layer for the EventStore.
+
+  - allows concurrent requests without work duplication and blocking
+
+  Special notes:
+  - we use a map to signify the state of the cache (usually this is an atom)
+  - this map contains currently running cache misses
+  - every change on this map triggers a state transition in gen_statem
+  - the postponed requests get a chance to run again on each state transition
+  """
+
   @behaviour :gen_statem
 
   defstruct busy: %{}, cache: %{}
 
-  def start_link(_), do: :gen_statem.start_link(__MODULE__, [], [])
+  def start_link(opts \\ []), do: :gen_statem.start_link(__MODULE__, [], opts)
 
   @impl true
   def callback_mode(), do: [:handle_event_function, :state_enter]
@@ -13,6 +25,8 @@ defmodule Essig.EventStore.Cache do
     # state / data / actions
     {:ok, %{}, %__MODULE__{}, []}
   end
+
+  ### PUBLIC API ###
 
   def request(pid, request), do: :gen_statem.call(pid, {:request, request})
   def get_state(pid), do: :gen_statem.call(pid, :get_state)
@@ -59,35 +73,34 @@ defmodule Essig.EventStore.Cache do
     {:next_state, data.busy, data, actions}
   end
 
-  def handle_event(:internal, {:fetch_data, request, from}, _s, _data) do
+  def handle_event(:internal, {:fetch_data, {mod, fun, args} = request, from}, _s, _data) do
     pid = self()
 
     Task.start(fn ->
-      Process.sleep(200)
-      response = "RESULT: #{inspect(request)}"
+      response = apply(mod, fun, args)
       GenServer.cast(pid, {:set_response, request, response, from})
     end)
 
     {:keep_state_and_data, []}
   end
 
-  def is_busy_for_request(data, request) do
+  defp is_busy_for_request(data, request) do
     Map.get(data.busy, request, false)
   end
 
-  def mark_busy_for_request(data, request, from) do
+  defp mark_busy_for_request(data, request, from) do
     %__MODULE__{data | busy: Map.put(data.busy, request, from)}
   end
 
-  def mark_done_for_request(data, request) do
+  defp mark_done_for_request(data, request) do
     %__MODULE__{data | busy: Map.delete(data.busy, request)}
   end
 
-  def store_in_cache(data, request, res) do
+  defp store_in_cache(data, request, res) do
     %__MODULE__{data | cache: Map.put(data.cache, request, res)}
   end
 
-  def get_from_cache(data, request) do
+  defp get_from_cache(data, request) do
     Map.get(data.cache, request, nil)
   end
 end
