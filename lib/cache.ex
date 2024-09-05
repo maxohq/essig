@@ -1,8 +1,13 @@
-defmodule Essig.EventStore.Cache do
+defmodule Essig.Cache do
   @moduledoc """
-  Cache layer for the EventStore.
+  Generic cache layer for anything.
+  Allows concurrent requests without work duplication and blocking.
 
-  - allows concurrent requests without work duplication and blocking
+  Usage:
+  ```
+  {:ok, pid} = Essig.Cache.start_link()
+  response = Essig.Cache.request(pid, {Mod, :fun, [arg1, arg2]})
+  ```
 
   Special notes:
   - we use a map to signify the state of the cache (usually this is an atom)

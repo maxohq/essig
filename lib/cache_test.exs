@@ -1,6 +1,6 @@
-defmodule Essig.EventStore.CacheTest do
+defmodule Essig.CacheTest do
   use Essig.DataCase
-  alias Essig.EventStore.Cache
+  alias Essig.Cache
 
   defmodule ReqBackend do
     def fetch(request) do
@@ -16,7 +16,6 @@ defmodule Essig.EventStore.CacheTest do
   describe "full run" do
     test "multiple tasks with same request get the same result" do
       {:ok, pid} = Cache.start_link([])
-      assert is_pid(pid)
 
       tasks =
         for _ <- 1..5 do
@@ -29,7 +28,6 @@ defmodule Essig.EventStore.CacheTest do
 
       assert length(results) == 5
       [first_result | rest] = results
-      # IO.inspect(first_result)
       assert Enum.all?(rest, &(&1 == first_result))
     end
 
@@ -60,12 +58,12 @@ defmodule Essig.EventStore.CacheTest do
 
       assert state ==
                {%{},
-                %Essig.EventStore.Cache{
+                %Essig.Cache{
                   busy: %{},
                   cache: %{
-                    {Essig.EventStore.CacheTest.ReqBackend, :fetch, [1]} => "RESULT: 1",
-                    {Essig.EventStore.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2",
-                    {Essig.EventStore.CacheTest.ReqBackend, :fetch, [3]} => "RESULT: 3"
+                    {Essig.CacheTest.ReqBackend, :fetch, [1]} => "RESULT: 1",
+                    {Essig.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2",
+                    {Essig.CacheTest.ReqBackend, :fetch, [3]} => "RESULT: 3"
                   }
                 }}
     end
