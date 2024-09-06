@@ -93,6 +93,7 @@ defmodule Essig.Cache do
   def handle_event(:cast, {:set_response, request, response, from}, _state, data) do
     data = mark_done_for_request(data, request)
     data = store_in_cache(data, request, response)
+    data = update_valid_until(data, request)
     actions = [{:reply, from, response}]
     {:next_state, data.busy, data, actions}
   end
@@ -159,5 +160,16 @@ defmodule Essig.Cache do
 
   def remove_expire_in(data, request) do
     %__MODULE__{data | expire_in: Map.delete(data.expire_in, request)}
+  end
+
+  def remove_expired_entries(data, now) do
+    expired_keys = Enum.filter(data.valid_until, fn {_, v} -> v < now end)
+
+    Enum.reduce(expired_keys, data, fn {k, _time}, acc ->
+      acc
+      |> remove_from_cache(k)
+      |> remove_valid_until(k)
+      |> remove_expire_in(k)
+    end)
   end
 end

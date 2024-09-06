@@ -90,6 +90,48 @@ defmodule Essig.CacheTest do
     end
   end
 
+  describe "remove_expired" do
+    test "works" do
+      {:ok, pid} = Cache.start_link([])
+
+      Cache.request(pid, req_tuple(1), expire_in: :timer.seconds(5))
+      Cache.request(pid, req_tuple(2), expire_in: :timer.seconds(10))
+      Cache.request(pid, req_tuple(3), expire_in: :timer.seconds(15))
+      # default expire_in - 30 seconds
+      Cache.request(pid, req_tuple(4))
+
+      now = :erlang.monotonic_time()
+
+      data = Cache.get_state(pid)
+      time_factor = 1_000_000
+
+      data1 = Cache.remove_expired_entries(data, now + :timer.seconds(5) * time_factor)
+
+      assert data1.cache == %{
+               {Essig.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2",
+               {Essig.CacheTest.ReqBackend, :fetch, [3]} => "RESULT: 3",
+               {Essig.CacheTest.ReqBackend, :fetch, [4]} => "RESULT: 4"
+             }
+
+      data2 = Cache.remove_expired_entries(data, now + :timer.seconds(10) * time_factor)
+
+      assert data2.cache == %{
+               {Essig.CacheTest.ReqBackend, :fetch, [3]} => "RESULT: 3",
+               {Essig.CacheTest.ReqBackend, :fetch, [4]} => "RESULT: 4"
+             }
+
+      data3 = Cache.remove_expired_entries(data, now + :timer.seconds(15) * time_factor)
+
+      assert data3.cache == %{
+               {Essig.CacheTest.ReqBackend, :fetch, [4]} => "RESULT: 4"
+             }
+
+      data4 = Cache.remove_expired_entries(data, now + :timer.seconds(30) * time_factor)
+
+      assert data4.cache == %{}
+    end
+  end
+
   def clean_state(pid) do
     Cache.get_state(pid) |> Map.put(:valid_until, %{})
   end
