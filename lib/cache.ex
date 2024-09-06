@@ -6,7 +6,12 @@ defmodule Essig.Cache do
   Usage:
   ```
   {:ok, pid} = Essig.Cache.start_link()
+
+  # populate cache with default `expire_in` value
   response = Essig.Cache.request(pid, {Mod, :fun, [arg1, arg2]})
+
+  # populate cache with custom `expire_in` value
+  response = Essig.Cache.request(pid, {Mod, :fun, [arg1, arg2]}, expire_in: :timer.seconds(15))
   ```
 
   Special notes:
@@ -18,7 +23,9 @@ defmodule Essig.Cache do
 
   @behaviour :gen_statem
 
-  defstruct busy: %{}, cache: %{}, last_used: %{}
+  @default_expire_in :timer.seconds(30)
+
+  defstruct busy: %{}, cache: %{}, valid_until: %{}, expire_in: %{}
 
   def start_link(opts \\ []), do: :gen_statem.start_link(__MODULE__, [], opts)
 
@@ -33,7 +40,7 @@ defmodule Essig.Cache do
 
   ### PUBLIC API ###
 
-  def request(pid, request), do: :gen_statem.call(pid, {:request, request})
+  def request(pid, request, opts \\ []), do: :gen_statem.call(pid, {:request, request, opts})
   def remove(pid, request), do: :gen_statem.call(pid, {:remove, request})
   def get_state(pid), do: :gen_statem.call(pid, :get_state)
 
@@ -48,14 +55,20 @@ defmodule Essig.Cache do
   end
 
   def handle_event({:call, from}, {:remove, request}, _state, data) do
-    data = remove_from_cache(data, request) |> remove_last_used(request)
+    data =
+      remove_from_cache(data, request)
+      |> remove_valid_until(request)
+      |> remove_expire_in(request)
+
     {:keep_state, data, [{:reply, from, :ok}]}
   end
 
   #
-  def handle_event({:call, from}, {:request, request}, _, data) do
+  def handle_event({:call, from}, {:request, request, req_opts}, _, data) do
+    expire_in = Keyword.get(req_opts, :expire_in, @default_expire_in)
+    data = update_expire_in(data, request, expire_in)
     {res, data} = get_from_cache(data, request)
-    in_busy = is_busy_for_request(data, request)
+    is_busy = is_busy_for_request(data, request)
 
     cond do
       # we have a result in cache, so we reply immediately
@@ -64,7 +77,7 @@ defmodule Essig.Cache do
         {:keep_state, data, actions}
 
       # we are already busy with this request, so we postpone
-      in_busy ->
+      is_busy ->
         actions = [:postpone]
         {:keep_state_and_data, actions}
 
@@ -87,6 +100,7 @@ defmodule Essig.Cache do
   def handle_event(:internal, {:fetch_data, {mod, fun, args} = request, from}, _s, _data) do
     pid = self()
 
+    # run the fetch in a separate process, to unblock our main loop
     Task.start(fn ->
       response = apply(mod, fun, args)
       GenServer.cast(pid, {:set_response, request, response, from})
@@ -119,18 +133,31 @@ defmodule Essig.Cache do
     res = Map.get(data.cache, request, nil)
 
     if res do
-      {res, update_last_used(data, request)}
+      {res, update_valid_until(data, request)}
     else
       {nil, data}
     end
   end
 
-  def update_last_used(data, request) do
+  def update_valid_until(data, request) do
     time = :erlang.monotonic_time()
-    %__MODULE__{data | last_used: Map.put(data.last_used, request, time)}
+    expire_in = Map.get(data.expire_in, request, @default_expire_in)
+
+    %__MODULE__{
+      data
+      | valid_until: Map.put(data.valid_until, request, time + expire_in * 1_000_000)
+    }
   end
 
-  def remove_last_used(data, request) do
-    %__MODULE__{data | last_used: Map.delete(data.last_used, request)}
+  def remove_valid_until(data, request) do
+    %__MODULE__{data | valid_until: Map.delete(data.valid_until, request)}
+  end
+
+  def update_expire_in(data, request, expire_in) do
+    %__MODULE__{data | expire_in: Map.put(data.expire_in, request, expire_in)}
+  end
+
+  def remove_expire_in(data, request) do
+    %__MODULE__{data | expire_in: Map.delete(data.expire_in, request)}
   end
 end

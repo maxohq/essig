@@ -63,6 +63,11 @@ defmodule Essig.CacheTest do
                    {Essig.CacheTest.ReqBackend, :fetch, [1]} => "RESULT: 1",
                    {Essig.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2",
                    {Essig.CacheTest.ReqBackend, :fetch, [3]} => "RESULT: 3"
+                 },
+                 expire_in: %{
+                   {Essig.CacheTest.ReqBackend, :fetch, [1]} => 30000,
+                   {Essig.CacheTest.ReqBackend, :fetch, [2]} => 30000,
+                   {Essig.CacheTest.ReqBackend, :fetch, [3]} => 30000
                  }
                }
     end
@@ -77,12 +82,15 @@ defmodule Essig.CacheTest do
 
       assert clean_state(pid) == %Essig.Cache{
                busy: %{},
+               expire_in: %{
+                 {Essig.CacheTest.ReqBackend, :fetch, [2]} => 30000
+               },
                cache: %{{Essig.CacheTest.ReqBackend, :fetch, [2]} => "RESULT: 2"}
              }
     end
   end
 
   def clean_state(pid) do
-    Cache.get_state(pid) |> Map.put(:last_used, %{})
+    Cache.get_state(pid) |> Map.put(:valid_until, %{})
   end
 end
