@@ -49,6 +49,7 @@ defmodule Essig.MixProject do
       ## UTIL
       {:json_serde, github: "maxohq/json_serde"},
       {:liveness, "~> 1.0.0"},
+      {:gen_cache, "~> 0.1"},
       {:uniq, "~> 0.6"},
 
       ## DEBUG

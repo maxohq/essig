@@ -10,6 +10,7 @@ defmodule Essig.Application do
       Essig.RepoSingleConn,
       {Phoenix.PubSub, name: Essig.PubSub},
       Essig.PGNotifyListener,
+      Essig.Cache,
       {Registry, keys: :unique, name: Essig.Scopes.Registry},
       Essig.Scopes.DynamicSupervisor
     ]
