@@ -6,7 +6,7 @@ defmodule Essig.EventStore.ReadAllStreamForward do
   end
 
   def query(from_id, amount) do
-    EventStore.BaseQuery.query()
+    Essig.EventStore.BaseQuery.query()
     |> where([event], event.id > ^from_id)
     |> order_by(asc: :id)
     |> limit(^amount)

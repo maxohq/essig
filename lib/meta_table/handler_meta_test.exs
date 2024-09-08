@@ -8,25 +8,25 @@ defmodule Essig.HandlerMetaTest do
 
   setup do
     # Set up a test app context
-    test_app = "test_app_#{:rand.uniform(1000)}"
-    Essig.Context.set_current_scope(test_app)
+    scope_uuid = Essig.UUID7.generate()
+    Essig.Context.set_current_scope(scope_uuid)
 
     on_exit(fn ->
       Essig.Context.set_current_scope(nil)
     end)
 
-    %{test_app: test_app}
+    %{scope_uuid: scope_uuid}
   end
 
-  test "init/0 creates an ETS table", %{test_app: test_app} do
+  test "init/0 creates an ETS table", %{scope_uuid: scope_uuid} do
     HandlerMeta.init()
-    assert :ets.info(String.to_atom("#{test_app}_handler_meta")) != :undefined
+    assert :ets.info(String.to_atom("#{scope_uuid}_handler_meta")) != :undefined
   end
 
-  test "repeated init/0 does not raise", %{test_app: test_app} do
+  test "repeated init/0 does not raise", %{scope_uuid: scope_uuid} do
     name = HandlerMeta.init()
     assert name == HandlerMeta.init()
-    assert :ets.info(String.to_atom("#{test_app}_handler_meta")) != :undefined
+    assert :ets.info(String.to_atom("#{scope_uuid}_handler_meta")) != :undefined
   end
 
   test "set/2 inserts data into the ETS table" do
@@ -139,7 +139,7 @@ defmodule Essig.HandlerMetaTest do
     assert Enum.at(result, 0) == {TestModule1, %{status: :new, key: TestModule1}}
   end
 
-  test "operations with different app contexts", %{test_app: test_app} do
+  test "operations with different app contexts", %{scope_uuid: scope_uuid} do
     HandlerMeta.init()
     HandlerMeta.set(TestModule, %{field: "value1"})
 
@@ -151,7 +151,7 @@ defmodule Essig.HandlerMetaTest do
     assert HandlerMeta.get(TestModule) == %{field: "value2", key: TestModule}
 
     # Switch back to the original app context
-    Essig.Context.set_current_scope(test_app)
+    Essig.Context.set_current_scope(scope_uuid)
     assert HandlerMeta.get(TestModule) == %{field: "value1", key: TestModule}
   end
 end

@@ -6,7 +6,7 @@ defmodule Essig.EventStore.ReadStreamBackward do
   end
 
   def query(stream_uuid, from_seq, amount) do
-    EventStore.BaseQuery.query()
+    Essig.EventStore.BaseQuery.query()
     |> where([event], event.stream_uuid == ^stream_uuid)
     |> where([event], event.seq < ^from_seq)
     |> order_by(desc: :seq)

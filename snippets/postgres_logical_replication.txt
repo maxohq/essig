@@ -1,0 +1,30 @@
+
+
+Practical Notes in Change Data Capture with Debezium and Postgres
+- https://medium.com/cermati-tech/practical-notes-in-change-data-capture-with-debezium-and-postgres-fe31bb11ab78
+- - https://debezium.io/blog/2021/10/07/incremental-snapshots/  (!!!)
+  ### Watermark-based Snapshots
+  In late 2019, the Netflix engineering team announced that they had developed an in-house change data capture framework. They also came up with an innovative solution of executing concurrent snapshots using watermarking, described in the paper DBLog: A Watermark Based Change-Data-Capture Framework by Andreas Andreakis and Ioannis Papapanagiotou.
+  The main idea behind this approach is that change data streaming is executed continuously together with snapshotting. The framework inserts low and high watermarks into the transaction log (by writing to the source database) and between those two points, a part of the snapshotted table is read. The framework keeps a record of database changes in between the watermarks and reconciles them with the snapshotted values, if the same records are snapshotted and modified during the window.
+  This means that the data is snapshotted in chunks - no lengthy process at the connector start, and also in case of crashes or a controlled termination of the connector, the snapshotting can be resumed since the last completed chunk.
+  As per Netflix, the implementation is provided for MySQL and PostgreSQL databases.
+
+
+  ### Signalling Table
+  Before moving to Debezium’s implementation of the watermark-based snapshotting approach, a small detour is needed.
+  Sometimes it can be useful to control Debezium from the outside, so to force it to execute some requested action.
+  Let’s suppose it is necessary to re-snapshot an already snapshotted table - a so-called ad-hoc snapshot.
+  The user would need to send a command to Debezium to pause the current operation and do the snapshot.
+  For that purpose, Debezium defines the concept signals, issued via a signalling table.
+  This is a special table, designated for communication between the user and Debezium.
+  Debezium captures the table and when the user requires a certain operation to be executed,
+  they simply write a record to the signalling table (sending a signal).
+  Debezium will receive the captured change and then execute the required action.
+
+
+
+- DBLog: A Watermark Based Change-Data-Capture Framework
+  - https://arxiv.org/pdf/2010.12597v1
+  - https://github.com/abhishek-ch/around-dataengineering/blob/master/docs/dblog_netflix_cdc.md
+  - https://netflixtechblog.com/dblog-a-generic-change-data-capture-framework-69351fb9099b - DBLog: A Generic Change-Data-Capture Framework
+  - https://medium.com/brexeng/change-data-capture-at-brex-c71263616dd7 - Change Data Capture at Brex

@@ -4,9 +4,11 @@ config :essig,
   ecto_repos: [Essig.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+config :essig, Essig.PubSub, adapter: Phoenix.PubSub.PG2
+
 if config_env() == :dev do
   # setup for ecto_dev_logger (https://github.com/fuelen/ecto_dev_logger)
-  config :essig, Essig.Repo, log: false
+  # config :essig, Essig.Repo, log: false
 
   config :essig, Essig.Repo,
     username: System.get_env("POSTGRES_USER") || "postgres",

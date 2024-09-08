@@ -1,0 +1,51 @@
+### Videos
+
+- [State (Machine) Of Enlightenment - 01.09.2024](https://www.youtube.com/watch?v=5ym6va__LW8)
+- [gen_statem Unveiled: A Theoretical Exploration of State Machines - FOSDEM 2024](https://fosdem.org/2024/schedule/event/fosdem-2024-2130-genstatem-unveiled-a-theoretical-exploration-of-state-machines/)
+  - [Death by Accidental Complexity by Ulf Wiger](https://www.infoq.com/presentations/Death-by-Accidental-Complexity/)
+  - https://dm3.github.io/2010/08/01/death-by-accidental-complexity.html
+  - https://github.com/uwiger/plain_fsm
+
+- [Pretty state machine - 2019](https://codesync.global/media/pretty-state-machine/)
+
+- [Lonestar ElixirConf 2018 - Managing state in distributed Elixir - Jerel Unruh](https://www.youtube.com/watch?v=V3iBgStaPmA&t=1131s)
+  - from 18:45
+- [Andrea Leopardi [GigCityElixir24] The World is a Network](https://youtu.be/9UFeQ11soQg?t=1641)
+- [Szymon Świerk - Building event-driven state machines with gen_statem | Elixir Community Krakow](https://www.youtube.com/watch?v=ehZoWwMjWBw&t=137s)
+- [Get more out of OTP with GenStateMachine | Erlang Solutions Webinar - 2020](https://www.youtube.com/watch?v=NW2b6lBuBas&t=3113s)
+- [Raimo Niskanen - gen_statem - The Tool You Never Knew You Always Wanted - Code BEAM SF 2018](https://www.youtube.com/watch?v=f_jl6MR3kXQ&t=1514s)
+
+Articles:
+
+- https://www.erlang.org/doc/system/statem.html (design docs)
+- [gen_statem in context - 2024](https://moosie.us/gen_statem_in_context)
+- https://andrealeopardi.com/posts/connection-managers-with-gen-statem/
+- https://github.com/antoinereyt/gen_statem_meetup?tab=readme-ov-file
+- https://2024-06-06.adoptingerlang.org/docs/cheat_sheets/
+  - gen_statem cheat sheet
+- https://meraj-gearhead.ca/state-machine-in-elixir-using-erlangs-genstatem-behaviour
+- https://dockyard.com/blog/2020/01/31/state-timeouts-with-gen_statem
+- https://slides.com/jprem/state-machines-in-elixir-with-gen_statem#/1/4
+- https://shortishly.com/blog/free-tracing-and-event-logging-with-sys/
+  - free debugging and logging with sys
+- https://erlangforums.com/t/pgmp-postgresql-client-with-logical-replication-to-ets/1707/17
+  - great description of how to use gen_statem to handle logical replication events
+  - https://github.com/pgmp/pgmp_client/blob/master/lib/pgmp_client/replication_connection.ex
+
+- Shortishly ARTCILES:
+  [[shortishly-articles.txt]]
+
+
+The gen_statem package, which is part of OTP, offers several special features:
+
+  1. State-based event handling: Events are handled differently based on the current state.
+  2. Flexible state representation: States can be atoms, tuples, or any Erlang term.
+  3. State data: Each state can have associated data.
+  4. Timeout events: You can set timeouts to automatically trigger state transitions.
+  5. State enter calls: Special callbacks can be defined for when a state is entered.
+  6. Postponing events: Events can be postponed and handled later in a different state.
+  7. State timeouts: Timeouts can be set specifically for each state.
+  8. Generic time events: You can set events to occur at specific times.
+
+
+

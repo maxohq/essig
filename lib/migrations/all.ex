@@ -4,7 +4,10 @@ defmodule Migrations.All do
   """
   def modules do
     [
-      {20_240_824_120_000, Migrations.Migration001}
+      {2024_0824_120000, Migrations.Migration001},
+      {2024_0904_112600, Migrations.Migration002},
+      {2024_0904_114100, Migrations.Migration003},
+      {2024_0907_232900, Migrations.Migration004}
     ]
   end
 end

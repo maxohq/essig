@@ -4,7 +4,7 @@ defmodule Essig.EventStoreTest do
   use MnemeDefaults
 
   setup do
-    Essig.Context.set_current_scope(Essig.Ecto.UUID7.generate())
+    Essig.Context.set_current_scope(Essig.UUID7.generate())
     :ok
   end
 
@@ -28,8 +28,8 @@ defmodule Essig.EventStoreTest do
 
   describe "read_all_stream_forward" do
     test "iterates over ALL global events from oldest to newest" do
-      uuid1 = Essig.Ecto.UUID7.generate()
-      uuid2 = Essig.Ecto.UUID7.generate()
+      uuid1 = Essig.UUID7.generate()
+      uuid2 = Essig.UUID7.generate()
       init_stream(uuid1, 0)
       init_stream(uuid2, 0)
       init_stream(uuid1, 10)
@@ -48,8 +48,8 @@ defmodule Essig.EventStoreTest do
 
   describe "read_all_stream_backward" do
     test "iterates over ALL global events from newest to oldest" do
-      uuid1 = Essig.Ecto.UUID7.generate()
-      uuid2 = Essig.Ecto.UUID7.generate()
+      uuid1 = Essig.UUID7.generate()
+      uuid2 = Essig.UUID7.generate()
       # batch 1
       init_stream(uuid1, 0)
       # batch 2
@@ -85,7 +85,7 @@ defmodule Essig.EventStoreTest do
 
   describe "read_stream_backward" do
     test "fetches events from newest to oldest with filters applied" do
-      uuid = Essig.Ecto.UUID7.generate()
+      uuid = Essig.UUID7.generate()
 
       init_stream(uuid, 0)
 
@@ -119,7 +119,7 @@ defmodule Essig.EventStoreTest do
 
   describe "read_stream_forward" do
     test "fetches events from oldest to newest with filters applied" do
-      uuid = Essig.Ecto.UUID7.generate()
+      uuid = Essig.UUID7.generate()
       init_stream(uuid, 0)
 
       {:ok, _a} =
@@ -191,12 +191,12 @@ defmodule Essig.EventStoreTest do
       scope1 = Essig.Context.current_scope()
 
       Essig.Server.start_scope(scope1)
-      uuid1 = Essig.Ecto.UUID7.generate()
+      uuid1 = Essig.UUID7.generate()
       init_stream(uuid1, 0)
 
-      scope2 = Essig.Ecto.UUID7.generate()
+      scope2 = Essig.UUID7.generate()
       Essig.Server.start_scope(scope2)
-      uuid2 = Essig.Ecto.UUID7.generate()
+      uuid2 = Essig.UUID7.generate()
       init_stream(uuid2, 0)
 
       # switch to scope1

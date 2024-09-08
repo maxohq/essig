@@ -1,0 +1,36 @@
+defmodule TrafficLight do
+  use GenStateMachine
+
+  def start_link do
+    GenStateMachine.start_link(__MODULE__, :red, name: __MODULE__)
+  end
+
+   # Add this init function
+  def init(:red) do
+    {:ok, :red, nil}
+  end
+
+  def change do
+    GenStateMachine.cast(__MODULE__, :change)
+  end
+
+  def state do
+    GenStateMachine.call(__MODULE__, :get_state)
+  end
+
+  def handle_event(:cast, :change, :red, _data) do
+    {:next_state, :green, nil}
+  end
+
+  def handle_event(:cast, :change, :green, _data) do
+    {:next_state, :yellow, nil}
+  end
+
+  def handle_event(:cast, :change, :yellow, _data) do
+    {:next_state, :red, nil}
+  end
+
+  def handle_event({:call, from}, :get_state, state, _data) do
+    {:keep_state_and_data, [{:reply, from, state}]}
+  end
+end

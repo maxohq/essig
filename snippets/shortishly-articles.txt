@@ -1,0 +1,25 @@
+
+
+- https://shortishly.com/blog/cache-consistency-with-streaming-replication/
+     - Cache consistency with logical streaming replication
+
+  - https://shortishly.com/blog/pgmp-log-rep-postgresql-fifteen/
+    - PGMP Logical Replication in PostgreSQL 15
+
+  - https://shortishly.com/blog/pgec-read-write-notify/
+    - pgec reads: memory replicated cache, writes: PostgreSQL with a Redis API
+    - https://github.com/shortishly/pgec
+
+  - https://shortishly.com/blog/postgresql-edge-cache/
+    - pgec is a real-time in memory database replication cache, with a memcached and REST API
+
+  - https://shortishly.com/blog/mysql-replication-redis-api/
+    msec is a disk cache with a Redis compatible API using MySQL/MariaDB replication to remain consistent. Inserts, updates or deletes in the database are replicated in real time and persisted to a local store.
+
+  - https://shortishly.com/blog/property-testing-a-database-driver/
+
+
+
+
+  - https://erlangforums.com/t/pgmp-postgresql-client-with-logical-replication-to-ets/1707/17
+    - great description of how to use gen_statem to handle logical replication events

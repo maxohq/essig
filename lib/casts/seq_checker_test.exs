@@ -1,5 +1,5 @@
 defmodule Essig.Casts.SeqCheckerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Essig.Casts.SeqChecker
 
   describe "check_reached/2" do
