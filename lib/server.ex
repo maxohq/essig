@@ -35,6 +35,6 @@ defmodule Essig.Server do
   ############# PRIVATE
 
   defp check_registry_is_running() do
-    Essig.Casts.Registry.is_running?() && Essig.Entities.Registry.is_running?()
+    Essig.Casts2.Registry.is_running?() && Essig.Entities.Registry.is_running?()
   end
 end

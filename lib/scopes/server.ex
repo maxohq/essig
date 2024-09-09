@@ -13,7 +13,8 @@ defmodule Essig.Scopes.Server do
   def init(_init_arg) do
     # start 2 registries, that respect the current scope
     children = [
-      Essig.Casts.Registry,
+      Essig.Casts2.Registry,
+      Essig.Casts2.Supervisor,
       Essig.Entities.Registry
     ]
 
