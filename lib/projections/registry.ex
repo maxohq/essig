@@ -1,4 +1,4 @@
-defmodule Essig.Casts2.Registry do
+defmodule Essig.Projections.Registry do
   def start_link(_) do
     Essig.Context.assert_current_scope!()
     Registry.start_link(keys: :unique, name: reg_name())

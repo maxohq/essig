@@ -1,4 +1,4 @@
-defmodule Essig.Casts2.Supervisor do
+defmodule Essig.Projections.Supervisor do
   use DynamicSupervisor
 
   def start_link(init_arg) do
@@ -11,7 +11,7 @@ defmodule Essig.Casts2.Supervisor do
   end
 
   def start_child(name) do
-    spec = {Essig.Casts2.Server, name}
+    spec = {Essig.Projections.Runner, name}
     DynamicSupervisor.start_child(reg_name(), spec)
   end
 
