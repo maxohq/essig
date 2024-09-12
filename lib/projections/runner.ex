@@ -37,9 +37,9 @@ defmodule Essig.Projections.Runner do
   # Callbacks
 
   @impl true
-  def init(%{name: name, pause_ms: pause_ms}) do
+  def init(%{name: name, pause_ms: pause_ms} = data) do
     scope_uuid = Essig.Context.current_scope()
-    Logger.info("Projection #{name}: Init with pause_ms #{pause_ms}")
+    info(data, "Init with pause_ms #{pause_ms}")
     row = fetch_last_record(name)
     store_max_id = Essig.EventStoreReads.last_id(scope_uuid)
 
@@ -57,7 +57,7 @@ defmodule Essig.Projections.Runner do
   end
 
   def handle_event({:call, from}, {:set_pause_ms, pause_ms}, _state, data) do
-    Logger.info("Projection #{data.name}: set pause_ms to #{pause_ms}")
+    info(data, "set pause_ms to #{pause_ms}")
 
     {:keep_state, %Data{data | pause_ms: pause_ms},
      [{:reply, from, :ok}, {:state_timeout, pause_ms, :paused}]}
@@ -78,7 +78,7 @@ defmodule Essig.Projections.Runner do
   end
 
   def handle_event(:internal, :ensure_tables, :bootstrap, data) do
-    Logger.info("Projection #{data.name}: ensure tables")
+    info(data, "ensure tables")
     :keep_state_and_data
   end
 
@@ -97,7 +97,7 @@ defmodule Essig.Projections.Runner do
         Map.put(acc, :count, acc.count + 1)
       end)
 
-    Logger.info("Projection #{name}: at #{row.max_id}")
+    info(data, "at #{row.max_id}")
     Essig.Projections.MetaTable.set(name, %{max_id: row.max_id, count: row.count})
 
     if row.max_id != store_max_id do
@@ -107,11 +107,11 @@ defmodule Essig.Projections.Runner do
         {:state_timeout, pause_ms, :paused}
       ]
 
-      Logger.info("Projection #{data.name}: paused for #{pause_ms}...")
+      info(data, "paused for #{pause_ms}ms...")
       {:keep_state, %Data{data | row: row}, actions}
     else
       # finished...
-      Logger.info("Projection #{data.name}: finished!")
+      info(data, "finished")
       {:next_state, :idle, %Data{data | row: row}}
     end
   end
@@ -154,5 +154,9 @@ defmodule Essig.Projections.Runner do
       # but we let them expire to reduce app memory usage
       ttl: :timer.minutes(15)
     )
+  end
+
+  def info(data, msg) do
+    Logger.info("Projection #{inspect(data.name)}: #{msg}")
   end
 end
