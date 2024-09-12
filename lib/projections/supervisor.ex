@@ -10,9 +10,14 @@ defmodule Essig.Projections.Supervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def start_child(name) do
-    spec = {Essig.Projections.Runner, name}
-    DynamicSupervisor.start_child(reg_name(), spec)
+  def start_child(opts) do
+    child_spec = %{
+      id: Essig.Projections.Runner,
+      start: {Essig.Projections.Runner, :start_link, [opts]},
+      restart: :transient
+    }
+
+    DynamicSupervisor.start_child(reg_name(), child_spec)
   end
 
   def reg_name do
