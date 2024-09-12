@@ -3,25 +3,25 @@ defmodule Essig.ServerTest do
   import Liveness
 
   describe "full_run" do
-    test "works with casts" do
+    test "works with projections" do
       scope_uuid = Essig.UUID7.generate()
       Essig.Server.start_scope(scope_uuid)
-      Essig.Server.start_casts([SampleCast1, SampleCast2])
+      Essig.Server.start_projections([SampleCast1, SampleCast2])
       pid = Essig.Scopes.Registry.get(scope_uuid)
       assert is_pid(pid)
       assert scope_uuid in Essig.Scopes.Registry.keys()
 
-      assert is_pid(Essig.Server.get_cast(SampleCast1))
-      assert is_pid(Essig.Server.get_cast(SampleCast2))
+      assert is_pid(Essig.Server.get_projection(SampleCast1))
+      assert is_pid(Essig.Server.get_projection(SampleCast2))
 
       Process.flag(:trap_exit, true)
       GenServer.stop(pid)
       assert eventually(fn -> Essig.Scopes.Registry.get(scope_uuid) == nil end)
 
       assert_raise ArgumentError,
-                   "unknown registry: :\"Elixir.Essig.Casts.Registry_#{scope_uuid}\"",
+                   "unknown registry: :\"Elixir.Essig.Projections.Registry_#{scope_uuid}\"",
                    fn ->
-                     is_pid(Essig.Server.get_cast(SampleCast1))
+                     is_pid(Essig.Server.get_projection(SampleCast1))
                    end
 
       refute scope_uuid in Essig.Scopes.Registry.keys()

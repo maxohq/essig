@@ -8,16 +8,16 @@ defmodule Essig.Server do
     :ok
   end
 
-  ############ CASTS
+  ############ Projections
 
-  def start_casts(modules) do
+  def start_projections(modules) do
     Enum.map(modules, fn module ->
-      Essig.Casts.CastRunner.start_link(module: module)
+      Essig.Projections.Supervisor.start_child(name: module, module: module)
     end)
   end
 
-  def get_cast(module) do
-    Essig.Casts.Registry.get(module)
+  def get_projection(module) do
+    Essig.Projections.Registry.get(module)
   end
 
   ############ ENTITIES
