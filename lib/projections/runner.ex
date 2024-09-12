@@ -101,29 +101,25 @@ defmodule Essig.Projections.Runner do
         :internal,
         :read_from_eventstore,
         :bootstrap,
-        data = %Data{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id}
+        data = %Data{row: row, pause_ms: pause_ms, store_max_id: store_max_id}
       ) do
     scope_uuid = Essig.Context.current_scope()
     events = fetch_events(scope_uuid, row.max_id, 10)
 
     multi = Ecto.Multi.new()
 
-    {row, multi} =
-      Enum.reduce(events, {row, multi}, fn event, {acc_row, acc_multi} ->
-        ### handle row START
-        acc_row = Map.put(acc_row, :max_id, event.id)
-        acc_row = Map.put(acc_row, :count, acc_row.count + 1)
-        ### handle row DONE
-
-        ## accumulate statements into ecto multi
-        acc_multi = data.module.handle_event(acc_multi, {event, acc_row.count})
-        {acc_row, acc_multi}
+    multi =
+      Enum.reduce(events, multi, fn event, acc_multi ->
+        data.module.handle_event(acc_multi, {event, event.seq})
       end)
 
-    info(data, "at #{row.max_id}")
+    last_event = List.last(events)
+
+    info(data, "at #{last_event.id}")
     # not sure, what to do with response. BUT: projections MUST NEVER fail.
     {:ok, _multi_results} = Essig.Repo.transaction(multi) |> IO.inspect()
-    Essig.Projections.MetaTable.set(name, %{max_id: row.max_id, count: row.count})
+
+    row = update_external_state(data, row, %{max_id: last_event.id, seq: last_event.seq})
 
     if row.max_id != store_max_id do
       # need more events, with a pause
@@ -166,10 +162,31 @@ defmodule Essig.Projections.Runner do
   end
 
   defp fetch_last_record(name) do
-    case res = Essig.Projections.MetaTable.get(name) do
-      nil -> %{max_id: 0, count: 0}
-      %{} -> res
+    case res = Essig.Crud.ProjectionsCrud.get_projection_by_module(name) do
+      nil ->
+        module = Atom.to_string(name)
+        scope_uuid = Essig.Context.current_scope()
+
+        {:ok, row} =
+          Essig.Crud.ProjectionsCrud.create_projection(%{
+            name: name,
+            module: module,
+            scope_uuid: scope_uuid,
+            max_id: 0,
+            seq: 0
+          })
+
+        row
+
+      %{} ->
+        res
     end
+  end
+
+  defp update_external_state(data, row, updates) do
+    Essig.Projections.MetaTable.update(data.name, updates)
+    {:ok, row} = Essig.Crud.ProjectionsCrud.update_projection(row, updates)
+    row
   end
 
   defp fetch_events(scope_uuid, max_id, amount) do
