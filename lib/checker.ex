@@ -10,7 +10,7 @@ defmodule Essig.Checker do
 
   def run(scope_uuid, stream_uuid) do
     Essig.Server.start_scope(scope_uuid)
-    Essig.Server.start_casts([SampleCast1])
+    # Essig.Server.start_casts([SampleCast1])
 
     seq = Essig.EventStore.last_seq(stream_uuid)
 
