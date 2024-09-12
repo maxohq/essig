@@ -1,9 +1,8 @@
 defmodule Essig.Projections.Runner do
-  ### REGISTRY ############
-  import Essig.Projections.RegHelpers
-
   use GenStateMachine
   require Logger
+
+  import Essig.Projections.RegHelpers
 
   # Client API
 
@@ -87,12 +86,7 @@ defmodule Essig.Projections.Runner do
         data = %{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id}
       ) do
     scope_uuid = Essig.Context.current_scope()
-
-    events =
-      Essig.Cache.request(
-        {Essig.EventStoreReads, :read_all_stream_forward, [scope_uuid, row.max_id, 10]},
-        ttl: :timer.minutes(15)
-      )
+    events = fetch_events(scope_uuid, row.max_id, 10)
 
     row =
       Enum.reduce(events, row, fn event, acc ->
@@ -148,5 +142,14 @@ defmodule Essig.Projections.Runner do
       nil -> %{max_id: 0, count: 0}
       %{} -> res
     end
+  end
+
+  defp fetch_events(scope_uuid, max_id, amount) do
+    Essig.Cache.request(
+      {Essig.EventStoreReads, :read_all_stream_forward, [scope_uuid, max_id, amount]},
+      # in theory we can cache them forever, the results will never change
+      # but we let them expire to reduce app memory usage
+      ttl: :timer.minutes(15)
+    )
   end
 end
