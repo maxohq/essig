@@ -10,9 +10,10 @@ defmodule Essig.Server do
 
   ############ Projections
 
-  def start_projections(modules) do
+  def start_projections(modules, opts \\ []) do
     Enum.map(modules, fn module ->
-      Essig.Projections.Supervisor.start_child(name: module, module: module)
+      opts = Keyword.merge([name: module, module: module], opts)
+      Essig.Projections.Supervisor.start_child(opts)
     end)
   end
 
