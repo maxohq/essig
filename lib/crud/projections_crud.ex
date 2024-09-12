@@ -32,11 +32,6 @@ defmodule Essig.Crud.ProjectionsCrud do
     get_projection_by_module(Atom.to_string(module))
   end
 
-  def increment_seq(id, increment) when is_integer(increment) and increment > 0 do
-    from(c in Essig.Schemas.Projection, where: c.id == ^id)
-    |> Repo.update_all(inc: [seq: increment])
-  end
-
   @doc false
   def changeset(entity, attrs) do
     entity
