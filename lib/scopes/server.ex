@@ -18,6 +18,10 @@ defmodule Essig.Scopes.Server do
       Essig.Entities.Registry
     ]
 
+    # Essig.Casts.MetaTable.init()
+    Essig.Projections.MetaTable.init()
+    Essig.Entities.MetaTable.init()
+
     Supervisor.init(children, strategy: :one_for_one)
   end
 end

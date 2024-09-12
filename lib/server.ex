@@ -5,8 +5,6 @@ defmodule Essig.Server do
     Essig.Context.set_current_scope(scope)
     Essig.Scopes.Server.start_link(scope)
     eventually(&check_registry_is_running/0, 250, 1)
-    Essig.Casts.MetaTable.init()
-    Essig.Entities.MetaTable.init()
     :ok
   end
 
