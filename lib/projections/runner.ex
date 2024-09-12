@@ -12,16 +12,8 @@ defmodule Essig.Projections.Runner do
     name = Keyword.fetch!(opts, :name)
     module = Keyword.get(opts, :module, name)
     pause_ms = Keyword.get(opts, :pause_ms, 1000)
-
-    GenStateMachine.start_link(
-      __MODULE__,
-      %{
-        name: name,
-        module: module,
-        pause_ms: pause_ms
-      },
-      name: via_tuple(name)
-    )
+    init_args = %{name: name, module: module, pause_ms: pause_ms}
+    GenStateMachine.start_link(__MODULE__, init_args, name: via_tuple(name))
   end
 
   def get_state_data(name) do
@@ -103,10 +95,9 @@ defmodule Essig.Projections.Runner do
         :bootstrap,
         data = %Data{row: row, pause_ms: pause_ms, store_max_id: store_max_id}
       ) do
+    multi = Ecto.Multi.new()
     scope_uuid = Essig.Context.current_scope()
     events = fetch_events(scope_uuid, row.max_id, 10)
-
-    multi = Ecto.Multi.new()
 
     multi =
       Enum.reduce(events, multi, fn event, acc_multi ->
@@ -119,9 +110,7 @@ defmodule Essig.Projections.Runner do
     # not sure, what to do with response. BUT: projections MUST NEVER fail.
     {:ok, _multi_results} = Essig.Repo.transaction(multi) |> IO.inspect()
 
-    row = update_external_state(data, row, %{max_id: last_event.id, seq: last_event.seq})
-
-    if row.max_id != store_max_id do
+    if last_event.id != store_max_id do
       # need more events, with a pause
       actions = [
         {:next_event, :internal, :paused},
@@ -129,10 +118,19 @@ defmodule Essig.Projections.Runner do
       ]
 
       info(data, "paused for #{pause_ms}ms...")
+      row = update_external_state(data, row, %{max_id: last_event.id, seq: last_event.seq})
       {:keep_state, %Data{data | row: row}, actions}
     else
       # finished...
       info(data, "finished")
+
+      row =
+        update_external_state(data, row, %{
+          max_id: last_event.id,
+          seq: last_event.seq,
+          status: :idle
+        })
+
       {:next_state, :idle, %Data{data | row: row}}
     end
   end
@@ -163,23 +161,18 @@ defmodule Essig.Projections.Runner do
 
   defp fetch_last_record(name) do
     case res = Essig.Crud.ProjectionsCrud.get_projection_by_module(name) do
-      nil ->
-        module = Atom.to_string(name)
-        scope_uuid = Essig.Context.current_scope()
+      nil -> init_db_record(name)
+      %{} -> res
+    end
+  end
 
-        {:ok, row} =
-          Essig.Crud.ProjectionsCrud.create_projection(%{
-            name: name,
-            module: module,
-            scope_uuid: scope_uuid,
-            max_id: 0,
-            seq: 0
-          })
+  defp init_db_record(name) do
+    module = Atom.to_string(name)
+    scope_uuid = Essig.Context.current_scope()
+    args = %{name: name, module: module, scope_uuid: scope_uuid, max_id: 0, seq: 0}
 
-        row
-
-      %{} ->
-        res
+    with {:ok, row} <- Essig.Crud.ProjectionsCrud.create_projection(args) do
+      row
     end
   end
 
