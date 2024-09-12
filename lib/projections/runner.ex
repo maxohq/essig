@@ -1,19 +1,25 @@
 defmodule Essig.Projections.Runner do
-  alias Essig.Projections.Data
-
-  import Essig.Projections.RegHelpers
-
   use GenStateMachine
+  use Essig.Projections.RegHelpers
 
   require Logger
+
+  alias Essig.Projections.Data
 
   # Client API
 
   def start_link(opts) do
     name = Keyword.fetch!(opts, :name)
+    module = Keyword.get(opts, :module, name)
     pause_ms = Keyword.get(opts, :pause_ms, 1000)
 
-    GenStateMachine.start_link(__MODULE__, %{name: name, pause_ms: pause_ms},
+    GenStateMachine.start_link(
+      __MODULE__,
+      %{
+        name: name,
+        module: module,
+        pause_ms: pause_ms
+      },
       name: via_tuple(name)
     )
   end
@@ -37,16 +43,24 @@ defmodule Essig.Projections.Runner do
   # Callbacks
 
   @impl true
-  def init(%{name: name, pause_ms: pause_ms} = data) do
+  def init(%{name: name, pause_ms: pause_ms, module: module} = data) do
     scope_uuid = Essig.Context.current_scope()
     info(data, "Init with pause_ms #{pause_ms}")
     row = fetch_last_record(name)
     store_max_id = Essig.EventStoreReads.last_id(scope_uuid)
 
+    data = %Data{
+      row: row,
+      name: name,
+      module: module,
+      pause_ms: pause_ms,
+      store_max_id: store_max_id
+    }
+
     {
       :ok,
       :bootstrap,
-      %Data{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id},
+      data,
       [{:next_event, :internal, :ensure_tables}, {:next_event, :internal, :read_from_eventstore}]
     }
   end

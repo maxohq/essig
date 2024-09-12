@@ -1,11 +1,20 @@
 defmodule Essig.Projections.RegHelpers do
+  defmacro __using__(_) do
+    quote do
+      import Essig.Projections.RegHelpers
+
+      defdelegate list_children, to: Essig.Projections.RegHelpers
+      defdelegate pid_for_name(name), to: Essig.Projections.RegHelpers
+    end
+  end
+
   def pid_for_name(name) do
     case Registry.lookup(reg_name(), name) do
       [{pid, _}] ->
         pid
 
       [] ->
-        case Essig.Projections.Supervisor.start_child(name) do
+        case Essig.Projections.Supervisor.start_child(name: name) do
           {:ok, pid} -> pid
           {:error, {:already_started, pid}} -> pid
         end
