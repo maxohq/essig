@@ -61,7 +61,7 @@ defmodule Essig.Projections.Runner do
       :ok,
       :bootstrap,
       data,
-      [{:next_event, :internal, :ensure_tables}, {:next_event, :internal, :read_from_eventstore}]
+      [{:next_event, :internal, :init_storage}, {:next_event, :internal, :read_from_eventstore}]
     }
   end
 
@@ -91,8 +91,9 @@ defmodule Essig.Projections.Runner do
     {:keep_state_and_data, [{:reply, from, :ok}, {:next_event, :internal, :resume}]}
   end
 
-  def handle_event(:internal, :ensure_tables, :bootstrap, data) do
-    info(data, "ensure tables")
+  def handle_event(:internal, :init_storage, :bootstrap, data = %Data{}) do
+    info(data, "INIT STORAGE")
+    data.module.init_storage(data)
     :keep_state_and_data
   end
 
@@ -105,13 +106,23 @@ defmodule Essig.Projections.Runner do
     scope_uuid = Essig.Context.current_scope()
     events = fetch_events(scope_uuid, row.max_id, 10)
 
-    row =
-      Enum.reduce(events, row, fn event, acc ->
-        acc = Map.put(acc, :max_id, event.id)
-        Map.put(acc, :count, acc.count + 1)
+    multi = Ecto.Multi.new()
+
+    {row, multi} =
+      Enum.reduce(events, {row, multi}, fn event, {acc_row, acc_multi} ->
+        ### handle row START
+        acc_row = Map.put(acc_row, :max_id, event.id)
+        acc_row = Map.put(acc_row, :count, acc_row.count + 1)
+        ### handle row DONE
+
+        ## accumulate statements into ecto multi
+        acc_multi = data.module.handle_event(acc_multi, {event, acc_row.count})
+        {acc_row, acc_multi}
       end)
 
     info(data, "at #{row.max_id}")
+    # not sure, what to do with response. BUT: projections MUST NEVER fail.
+    {:ok, _multi_results} = Essig.Repo.transaction(multi) |> IO.inspect()
     Essig.Projections.MetaTable.set(name, %{max_id: row.max_id, count: row.count})
 
     if row.max_id != store_max_id do
