@@ -11,7 +11,7 @@ defmodule Essig.Schemas.Projection do
     field(:seq, :integer)
 
     field(:status, Ecto.Enum,
-      values: [:new, :backfilling, :ready, :blocked, :paused],
+      values: [:new, :backfilling, :idle, :blocked, :paused],
       default: :new
     )
 
