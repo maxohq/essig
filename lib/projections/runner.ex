@@ -1,8 +1,11 @@
 defmodule Essig.Projections.Runner do
-  use GenStateMachine
-  require Logger
+  alias Essig.Projections.Data
 
   import Essig.Projections.RegHelpers
+
+  use GenStateMachine
+
+  require Logger
 
   # Client API
 
@@ -43,7 +46,7 @@ defmodule Essig.Projections.Runner do
     {
       :ok,
       :bootstrap,
-      %{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id},
+      %Data{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id},
       [{:next_event, :internal, :ensure_tables}, {:next_event, :internal, :read_from_eventstore}]
     }
   end
@@ -56,7 +59,7 @@ defmodule Essig.Projections.Runner do
   def handle_event({:call, from}, {:set_pause_ms, pause_ms}, _state, data) do
     Logger.info("Projection #{data.name}: set pause_ms to #{pause_ms}")
 
-    {:keep_state, %{data | pause_ms: pause_ms},
+    {:keep_state, %Data{data | pause_ms: pause_ms},
      [{:reply, from, :ok}, {:state_timeout, pause_ms, :paused}]}
   end
 
@@ -83,7 +86,7 @@ defmodule Essig.Projections.Runner do
         :internal,
         :read_from_eventstore,
         :bootstrap,
-        data = %{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id}
+        data = %Data{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id}
       ) do
     scope_uuid = Essig.Context.current_scope()
     events = fetch_events(scope_uuid, row.max_id, 10)
@@ -105,11 +108,11 @@ defmodule Essig.Projections.Runner do
       ]
 
       Logger.info("Projection #{data.name}: paused for #{pause_ms}...")
-      {:keep_state, %{data | row: row}, actions}
+      {:keep_state, %Data{data | row: row}, actions}
     else
       # finished...
       Logger.info("Projection #{data.name}: finished!")
-      {:next_state, :idle, %{data | row: row}}
+      {:next_state, :idle, %Data{data | row: row}}
     end
   end
 
