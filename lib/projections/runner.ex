@@ -36,13 +36,15 @@ defmodule Essig.Projections.Runner do
 
   @impl true
   def init(%{name: name, pause_ms: pause_ms}) do
+    scope_uuid = Essig.Context.current_scope()
     Logger.info("Projection #{name}: Init with pause_ms #{pause_ms}")
     row = fetch_last_record(name)
+    store_max_id = Essig.EventStoreReads.last_id(scope_uuid)
 
     {
       :ok,
       :bootstrap,
-      %{row: row, name: name, pause_ms: pause_ms},
+      %{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id},
       [{:next_event, :internal, :ensure_tables}, {:next_event, :internal, :read_from_eventstore}]
     }
   end
@@ -82,11 +84,15 @@ defmodule Essig.Projections.Runner do
         :internal,
         :read_from_eventstore,
         :bootstrap,
-        data = %{row: row, name: name, pause_ms: pause_ms}
+        data = %{row: row, name: name, pause_ms: pause_ms, store_max_id: store_max_id}
       ) do
     scope_uuid = Essig.Context.current_scope()
-    events = Essig.EventStoreReads.read_all_stream_forward(scope_uuid, row.max_id, 10)
-    max_id = Essig.EventStoreReads.last_id(scope_uuid)
+
+    events =
+      Essig.Cache.request(
+        {Essig.EventStoreReads, :read_all_stream_forward, [scope_uuid, row.max_id, 10]},
+        ttl: :timer.minutes(15)
+      )
 
     row =
       Enum.reduce(events, row, fn event, acc ->
@@ -97,7 +103,7 @@ defmodule Essig.Projections.Runner do
     Logger.info("Projection #{name}: at #{row.max_id}")
     Essig.Projections.MetaTable.set(name, %{max_id: row.max_id, count: row.count})
 
-    if row.max_id != max_id do
+    if row.max_id != store_max_id do
       # need more events, with a pause
       actions = [
         {:next_event, :internal, :paused},
