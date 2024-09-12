@@ -35,4 +35,9 @@ defmodule Essig.EventStoreReads do
     Essig.Context.set_current_scope(scope_uuid)
     Essig.EventStore.LastSeq.run(stream_uuid)
   end
+
+  def last_id(scope_uuid) do
+    Essig.Context.set_current_scope(scope_uuid)
+    Essig.EventStore.LastId.run()
+  end
 end

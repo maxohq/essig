@@ -29,4 +29,8 @@ defmodule Essig.EventStore do
   def last_seq(stream_uuid) do
     Essig.EventStore.LastSeq.run(stream_uuid)
   end
+
+  def last_id() do
+    Essig.EventStore.LastId.run()
+  end
 end
