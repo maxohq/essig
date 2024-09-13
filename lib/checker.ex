@@ -10,7 +10,6 @@ defmodule Essig.Checker do
 
   def run(scope_uuid, stream_uuid) do
     Essig.Server.start_scope(scope_uuid)
-    # Essig.Server.start_casts([SampleCast1])
 
     seq = Essig.EventStore.last_seq(stream_uuid)
 
@@ -20,8 +19,5 @@ defmodule Essig.Checker do
         %Sample.TestReports.Events.MasterReportAdded{path: "local/path/to", report: "report 2"},
         %Sample.TestReports.Events.MasterReportAdded{path: "local/path/to", report: "report 3"}
       ])
-
-    # this will be unnecessary soon
-    # Essig.Casts.CastRunner.send_events(SampleCast1, events)
   end
 end
