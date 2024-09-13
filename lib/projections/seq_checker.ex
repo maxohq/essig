@@ -3,6 +3,12 @@ defmodule Essig.Projections.SeqChecker do
   Checks, that given Cast modules reached certain SEQ value
   """
 
+  import Liveness
+
+  def await(modules, seq, timeout \\ 250) do
+    eventually(fn -> check_reached(modules, seq) == true end, timeout, 1)
+  end
+
   def check_reached(modules, seq) do
     conditions =
       Enum.map(modules, fn module ->
