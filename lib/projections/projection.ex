@@ -1,10 +1,10 @@
-defmodule Projections.Projection do
+defmodule Essig.Projections.Projection do
   @callback init_storage(Essig.Projections.Data.t()) :: :ok | {:error, any()}
   @callback handle_event(Ecto.Multi.t(), {map(), number()}) :: Ecto.Multi.t()
 
   defmacro __using__(_opts) do
     quote do
-      @behaviour Projections.Projection
+      @behaviour Essig.Projections.Projection
 
       alias Essig.Projections.Data
 
