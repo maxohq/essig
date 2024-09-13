@@ -104,33 +104,38 @@ defmodule Essig.Projections.Runner do
         data.module.handle_event(acc_multi, {event, event.seq})
       end)
 
-    last_event = List.last(events)
+    if length(events) > 0 do
+      last_event = List.last(events)
 
-    info(data, "at #{last_event.id}")
-    # not sure, what to do with response. BUT: projections MUST NEVER fail.
-    {:ok, _multi_results} = Essig.Repo.transaction(multi) |> IO.inspect()
+      info(data, "at #{last_event.id}")
+      # not sure, what to do with response. BUT: projections MUST NEVER fail.
+      {:ok, _multi_results} = Essig.Repo.transaction(multi) |> IO.inspect()
 
-    if last_event.id != store_max_id do
-      # need more events, with a pause
-      actions = [
-        {:next_event, :internal, :paused},
-        {:state_timeout, pause_ms, :paused}
-      ]
+      if last_event.id != store_max_id do
+        # need more events, with a pause
+        actions = [
+          {:next_event, :internal, :paused},
+          {:state_timeout, pause_ms, :paused}
+        ]
 
-      info(data, "paused for #{pause_ms}ms...")
-      row = update_external_state(data, row, %{max_id: last_event.id, seq: last_event.seq})
-      {:keep_state, %Data{data | row: row}, actions}
+        info(data, "paused for #{pause_ms}ms...")
+        row = update_external_state(data, row, %{max_id: last_event.id, seq: last_event.seq})
+        {:keep_state, %Data{data | row: row}, actions}
+      else
+        # finished...
+        info(data, "finished")
+
+        row =
+          update_external_state(data, row, %{
+            max_id: last_event.id,
+            seq: last_event.seq,
+            status: :idle
+          })
+
+        {:next_state, :idle, %Data{data | row: row}}
+      end
     else
-      # finished...
-      info(data, "finished")
-
-      row =
-        update_external_state(data, row, %{
-          max_id: last_event.id,
-          seq: last_event.seq,
-          status: :idle
-        })
-
+      row = update_external_state(data, row, %{status: :idle})
       {:next_state, :idle, %Data{data | row: row}}
     end
   end
@@ -172,6 +177,7 @@ defmodule Essig.Projections.Runner do
     args = %{name: name, module: module, scope_uuid: scope_uuid, max_id: 0, seq: 0}
 
     with {:ok, row} <- Essig.Crud.ProjectionsCrud.create_projection(args) do
+      Essig.Projections.MetaTable.update(name, args)
       row
     end
   end
