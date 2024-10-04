@@ -1,12 +1,12 @@
 defmodule Essig.Context do
-  alias Essig.Helpers.ProcDict
+  alias Essig.Helpers.ProcessTree
   @appkey {Context, :current_scope}
   def set_current_scope(uuid) do
-    ProcDict.put(@appkey, uuid)
+    Process.put(@appkey, uuid)
   end
 
   def current_scope do
-    ProcDict.get_with_ancestors(@appkey)
+    ProcessTree.get(@appkey, default: "00000000-0000-0000-0000-000000000001")
   end
 
   def assert_current_scope! do
@@ -16,10 +16,10 @@ defmodule Essig.Context do
 
   @metakey {Context, :current_meta}
   def set_current_meta(meta) do
-    ProcDict.put(@metakey, meta)
+    Process.put(@metakey, meta)
   end
 
   def current_meta do
-    ProcDict.get_with_ancestors(@metakey) || %{}
+    ProcessTree.get(@metakey) || %{}
   end
 end

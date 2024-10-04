@@ -13,9 +13,14 @@ defmodule Essig.Scopes.Server do
   def init(_init_arg) do
     # start 2 registries, that respect the current scope
     children = [
-      Essig.Casts.Registry,
+      Essig.Projections.Registry,
+      Essig.Projections.Supervisor,
       Essig.Entities.Registry
     ]
+
+    # Essig.Casts.MetaTable.init()
+    Essig.Projections.MetaTable.init()
+    Essig.Entities.MetaTable.init()
 
     Supervisor.init(children, strategy: :one_for_one)
   end

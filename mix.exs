@@ -40,11 +40,11 @@ defmodule Essig.MixProject do
       ## ETS
       {:ets_select, "~> 0.1.2"},
 
+      ## Genstatem wrapper
+      {:gen_state_machine, "~> 3.0.0"},
+
       ## PUB-SUB
       {:phoenix_pubsub, "~> 2.1"},
-
-      ## State machine handling
-      {:gen_state_machine, "~> 3.0"},
 
       ## UTIL
       {:json_serde, github: "maxohq/json_serde"},
