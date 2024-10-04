@@ -6,7 +6,7 @@ defmodule Essig.Context do
   end
 
   def current_scope do
-    ProcessTree.get(@appkey)
+    ProcessTree.get(@appkey, default: "00000000-0000-0000-0000-000000000001")
   end
 
   def assert_current_scope! do
