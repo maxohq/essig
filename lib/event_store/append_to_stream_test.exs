@@ -146,4 +146,16 @@ defmodule Essig.EventStore.AppendToStreamTest do
         Essig.EventStore.AppendToStream.run(uuid, "wrong-stream-type", 2, [e1, e2])
     end
   end
+
+  describe "appending empty list of events works" do
+    test "returns success" do
+      Essig.Context.set_current_scope(Essig.UUID7.generate())
+      uuid = Essig.UUID7.generate()
+
+      {:ok, changes} =
+        Essig.EventStore.AppendToStream.run(uuid, "test-report-process", 0, [])
+
+      assert changes.insert_events == []
+    end
+  end
 end

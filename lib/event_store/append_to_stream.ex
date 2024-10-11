@@ -31,13 +31,23 @@ defmodule Essig.EventStore.AppendToStream do
     end)
     |> Ecto.Multi.run(:update_seq, fn _repo, %{stream: stream, insert_events: insert_events} ->
       last_event = Enum.at(insert_events, -1)
-      Essig.Crud.StreamsCrud.update_stream(stream, %{seq: last_event.seq})
+
+      if last_event do
+        Essig.Crud.StreamsCrud.update_stream(stream, %{seq: last_event.seq})
+      else
+        {:ok, stream}
+      end
     end)
     |> Ecto.Multi.run(:signal_new_events, fn _repo, %{insert_events: insert_events} ->
       last_event = Enum.at(insert_events, -1)
-      max_id = last_event.id
-      count = Enum.count(insert_events)
-      signal_new_events(stream_uuid, count, max_id)
+
+      if last_event do
+        max_id = last_event.id
+        count = Enum.count(insert_events)
+        signal_new_events(stream_uuid, count, max_id)
+      else
+        {:ok, true}
+      end
     end)
   end
 
