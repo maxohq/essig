@@ -1,23 +1,24 @@
-defmodule Essig.Casts.SeqCheckerTest do
+defmodule Essig.Projections.SeqCheckerTest do
   use ExUnit.Case, async: true
-  alias Essig.Casts.SeqChecker
+  alias Essig.Projections.SeqChecker
 
   describe "check_reached/2" do
     setup do
-      Essig.Context.set_current_scope("app1")
-      Essig.Casts.MetaTable.init()
+      Essig.Server.start_scope(Essig.UUID7.generate())
+      # Essig.Context.set_current_scope("app1")
+      # Essig.Projections.MetaTable.init()
       :ok
     end
 
     test "check if all given modules have at least reached the required SEQ value" do
-      Essig.Casts.MetaTable.set(TestModule1, %{seq: 5})
-      Essig.Casts.MetaTable.set(TestModule2, %{seq: 5})
+      Essig.Projections.MetaTable.set(TestModule1, %{seq: 5})
+      Essig.Projections.MetaTable.set(TestModule2, %{seq: 5})
 
       assert SeqChecker.check_reached([TestModule1, TestModule2], 5)
       refute SeqChecker.check_reached([TestModule1, TestModule2], 6)
 
-      Essig.Casts.MetaTable.update(TestModule1, %{seq: 8})
-      Essig.Casts.MetaTable.update(TestModule2, %{seq: 7})
+      Essig.Projections.MetaTable.update(TestModule1, %{seq: 8})
+      Essig.Projections.MetaTable.update(TestModule2, %{seq: 7})
       assert SeqChecker.check_reached([TestModule1, TestModule2], 6)
       assert SeqChecker.check_reached([TestModule1, TestModule2], 7)
       refute SeqChecker.check_reached([TestModule1, TestModule2], 8)

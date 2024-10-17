@@ -5,21 +5,20 @@ defmodule Essig.Server do
     Essig.Context.set_current_scope(scope)
     Essig.Scopes.Server.start_link(scope)
     eventually(&check_registry_is_running/0, 250, 1)
-    Essig.Casts.MetaTable.init()
-    Essig.Entities.MetaTable.init()
     :ok
   end
 
-  ############ CASTS
+  ############ Projections
 
-  def start_casts(modules) do
+  def start_projections(modules, opts \\ []) do
     Enum.map(modules, fn module ->
-      Essig.Casts.CastRunner.start_link(module: module)
+      opts = Keyword.merge([name: module, module: module], opts)
+      Essig.Projections.Supervisor.start_child(opts)
     end)
   end
 
-  def get_cast(module) do
-    Essig.Casts.Registry.get(module)
+  def get_projection(module) do
+    Essig.Projections.Registry.get(module)
   end
 
   ############ ENTITIES
@@ -35,6 +34,6 @@ defmodule Essig.Server do
   ############# PRIVATE
 
   defp check_registry_is_running() do
-    Essig.Casts.Registry.is_running?() && Essig.Entities.Registry.is_running?()
+    Essig.Projections.Registry.is_running?() && Essig.Entities.Registry.is_running?()
   end
 end

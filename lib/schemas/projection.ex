@@ -1,8 +1,8 @@
-defmodule Essig.Schemas.Cast do
+defmodule Essig.Schemas.Projection do
   use Ecto.Schema
 
-  @primary_key {:cast_uuid, Ecto.UUID, autogenerate: {Essig.UUID7, :generate, []}}
-  schema "essig_casts" do
+  @primary_key {:projection_uuid, Ecto.UUID, autogenerate: {Essig.UUID7, :generate, []}}
+  schema "essig_projections" do
     # this is another "primary" key, used for global ordering (+ and when fetching all stream)
     field(:id, :integer, read_after_writes: true)
     field(:scope_uuid, Ecto.UUID)
@@ -11,7 +11,7 @@ defmodule Essig.Schemas.Cast do
     field(:seq, :integer)
 
     field(:status, Ecto.Enum,
-      values: [:new, :backfilling, :ready, :blocked, :paused],
+      values: [:new, :backfilling, :idle, :blocked, :paused],
       default: :new
     )
 

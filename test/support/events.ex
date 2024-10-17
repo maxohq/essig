@@ -9,7 +9,7 @@ defmodule CustomApp.TestReports.Events.TicketMatchAdded do
       - %{match_kind: "manual", id: 50, kind: "bootloader"}
       - %{match_kind: "auto", id: 51, kind: "appsw"}
   """
-  use JsonSerde, alias: "trp.ticket_match_added"
+  use Essig.Event, name: "trp.ticket_match_added"
   defstruct [:match_kind, :id, :kind]
 end
 
@@ -31,7 +31,7 @@ defmodule CustomApp.TestReports.Events.ReqTestReportsUpdated do
       ]
 
   """
-  use JsonSerde, alias: "trp.req_test_reports_updated"
+  use Essig.Event, name: "trp.req_test_reports_updated"
   defstruct [:ops]
 end
 
@@ -42,7 +42,7 @@ defmodule CustomApp.TestReports.Events.MasterReportAdded do
   - we also store the parsed information for the XML file
   - and the event version (?)
   """
-  use JsonSerde, alias: "trp.master_report_added"
+  use Essig.Event, name: "trp.master_report_added"
   defstruct [:path, :report]
 end
 
