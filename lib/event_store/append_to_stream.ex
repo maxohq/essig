@@ -90,7 +90,7 @@ defmodule Essig.EventStore.AppendToStream do
         seq: stream.seq + index + 1,
         stream_uuid: stream.stream_uuid,
         stream_type: stream.stream_type,
-        event_type: item.__struct__.__json_serde_alias__(),
+        event_type: item.__struct__.__essig_event__(),
         data: item,
         meta: meta
       }
