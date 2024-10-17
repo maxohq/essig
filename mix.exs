@@ -49,7 +49,6 @@ defmodule Essig.MixProject do
       ## UTIL
       {:liveness, "~> 1.0.0"},
       {:gen_cache, "~> 0.1"},
-      {:uniq, "~> 0.6"},
 
       ## DEBUG
       {:data_tracer, "~> 0.1"},
