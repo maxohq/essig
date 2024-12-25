@@ -1,4 +1,34 @@
 defmodule Essig.Projections.Runner do
+  @moduledoc """
+    This module `Essig.Projections.Runner` is a GenStateMachine implementation that manages event sourcing projections.
+    Here's a breakdown of its main purposes:
+
+    1. **Event Processing**: It reads events from an event store and processes them sequentially to build/maintain projections (which are typically read-optimized views of data).
+
+    2. **State Management**: It manages different states of the projection processing:
+       - `:bootstrap` - Initial loading and processing of events
+       - `:idle` - When caught up with all events
+
+    3. **Control Features**:
+       - Pause/Resume functionality for event processing
+       - Configurable pause duration between processing batches
+       - State tracking to remember the last processed event ID
+
+    4. **Durability**:
+       - Maintains projection progress in a database
+       - Tracks the maximum event ID processed
+       - Handles projection state persistence
+
+    5. **Batching**:
+       - Processes events in batches (10 events at a time)
+       - Uses Ecto.Multi for transactional processing
+
+    6. **Reliability**:
+       - Includes caching mechanism for event fetching
+       - Designed to be fault-tolerant ("projections MUST NEVER fail")
+
+    Key features include transaction safety, state persistence, configurable processing speeds, and the ability to rebuild projections from the event store when needed.
+  """
   use GenStateMachine
   use Essig.Projections.RegHelpers
 
@@ -59,10 +89,12 @@ defmodule Essig.Projections.Runner do
 
   @impl true
   def handle_event({:call, from}, :get_state_data, state, data) do
+    IO.puts("Projections.Runner-> get_state_data")
     {:keep_state_and_data, [{:reply, from, {state, data}}]}
   end
 
   def handle_event({:call, from}, {:set_pause_ms, pause_ms}, _state, data) do
+    IO.puts("Projections.Runner-> set_pause_ms")
     info(data, "set pause_ms to #{pause_ms}")
 
     {:keep_state, %Data{data | pause_ms: pause_ms},
@@ -70,6 +102,8 @@ defmodule Essig.Projections.Runner do
   end
 
   def handle_event({:call, from}, :pause, _state, _data) do
+    IO.puts("Projections.Runner-> pause")
+
     {:keep_state_and_data,
      [
        {:reply, from, :ok},
@@ -80,10 +114,12 @@ defmodule Essig.Projections.Runner do
   end
 
   def handle_event({:call, from}, :resume, _state, _data) do
+    IO.puts("Projections.Runner-> resume")
     {:keep_state_and_data, [{:reply, from, :ok}, {:next_event, :internal, :resume}]}
   end
 
   def handle_event(:internal, :init_storage, :bootstrap, data = %Data{}) do
+    IO.puts("Projections.Runner-> init_storage: bootstrap")
     info(data, "INIT STORAGE")
     data.module.init_storage(data)
     :keep_state_and_data
@@ -95,6 +131,7 @@ defmodule Essig.Projections.Runner do
         :bootstrap,
         data = %Data{row: row, pause_ms: pause_ms, store_max_id: store_max_id}
       ) do
+    IO.puts("Projections.Runner-> read_from_eventstore: bootstrap")
     multi = Ecto.Multi.new()
     scope_uuid = Essig.Context.current_scope()
     events = fetch_events(scope_uuid, row.max_id, 10)
