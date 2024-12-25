@@ -5,6 +5,8 @@ defmodule Essig.Application do
 
   @impl true
   def start(_type, _args) do
+    Ecto.DevLogger.install(Essig.Repo)
+
     children = [
       Essig.Repo,
       Essig.RepoSingleConn,

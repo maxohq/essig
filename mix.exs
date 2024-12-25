@@ -54,6 +54,7 @@ defmodule Essig.MixProject do
       {:data_tracer, "~> 0.1"},
 
       ## DEV
+      {:ecto_dev_logger, "~> 0.9"},
       {:maxo_test_iex, "~> 0.1.7", only: [:test]},
       {:mneme, "~> 0.8", only: [:test]}
     ]
