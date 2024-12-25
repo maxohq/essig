@@ -71,6 +71,9 @@ defmodule Essig.Projections.Runner do
     row = fetch_last_record(name)
     store_max_id = Essig.EventStoreReads.last_id(scope_uuid)
 
+    ## Subsribe to events
+    Essig.Pubsub.subscribe("pg-events.new_events")
+
     data = %Data{
       row: row,
       name: name,
@@ -198,6 +201,82 @@ defmodule Essig.Projections.Runner do
   end
 
   def handle_event(:internal, :resume, :idle, _) do
+    {:keep_state_and_data, []}
+  end
+
+  def handle_event(:info, {:new_events, notification}, status, data) do
+    IO.puts("HANDLE NEW EVENTS")
+    ## we get a notification from the pubsub, that there are new events
+    ## now we need to poll for new events since our last SEQ and send them to the handler module.
+    %{
+      count: count,
+      scope_uuid: scope_uuid,
+      max_id: max_id,
+      stream_uuid: stream_uuid
+    } = notification
+
+    IO.inspect(notification, label: "notification")
+    IO.inspect(status, label: "status")
+    IO.inspect(data, label: "data")
+    row = data.row
+
+    data_max_id = row.max_id
+    to_fetch = max_id - data_max_id
+    seq = row.seq
+
+    # %{
+    #   row: %{
+    #     projection_uuid: "01940019-225a-76aa-8b24-568a0e0b3ddb",
+    #     id: 12,
+    #     scope_uuid: "01940019-223b-708b-b7e7-baded5ea9341",
+    #     module: "Elixir.Sample.Projections.Proj1",
+    #     max_id: 0,
+    #     seq: 0,
+    #     status: :idle,
+    #     setup_done: false,
+    #     inserted_at: ~U[2024-12-25 23:13:54Z],
+    #     updated_at: ~U[2024-12-25 23:13:54Z]
+    #   }
+    # } = data
+
+    ### FETCH EVENTS
+    events =
+      Essig.Cache.request(
+        {Essig.EventStoreReads, :read_all_stream_forward, [scope_uuid, seq, to_fetch]}
+      )
+
+    IO.inspect(events, label: "events")
+
+    ### UPDATE PROJECTION ROW
+
+    ### UPDATE META TABLE
+
+    ### UPDATE ACTUAL PROJECTION
+
+    # %{
+    # count: 2,
+    # scope_uuid: "0193ffde-63f1-77e3-9a26-0160116b2ba4",
+    # max_id: 4,
+    # stream_uuid: "0193ffde-698e-7bdb-a36b-981643742798",
+    # txid: 10626169}},
+    # :idle,
+    # %Essig.Projections.Data{
+    #  row: %Essig.Schemas.Projection{
+    #   __meta__: #Ecto.Schema.Metadata<:loaded, "essig_projections">,
+    #   projection_uuid: "0193ffde-6427-7bb8-a4c7-6739d78e117c",
+    #   id: 2,
+    #   scope_uuid: "0193ffde-63f1-77e3-9a26-0160116b2ba4",
+    #   module: "Elixir.Sample.Projections.Proj1",
+    #   max_id: 0,
+    #   seq: 0,
+    #   status: :idle,
+    #   setup_done: false,
+    # inserted_at: ~U[2024-12-25 22:09:45Z],
+    # updated_at: ~U[2024-12-25 22:09:45Z]},
+    # name: Sample.Projections.Proj1,
+    # pause_ms: 2,
+    # store_max_id: 0,
+    # module: Sample.Projections.Proj1}
     {:keep_state_and_data, []}
   end
 
