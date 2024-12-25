@@ -99,16 +99,18 @@ defmodule Essig.EventStore.AppendToStream do
   end
 
   defp insert_events(event_payloads) do
-    Enum.reduce_while(event_payloads, [], fn event_payload, acc ->
-      case Essig.Crud.EventsCrud.create_event(event_payload) do
-        {:ok, event} -> {:cont, [event | acc]}
-        {:error, _} = error -> {:halt, error}
+    Repo.transaction(fn ->
+      Enum.reduce_while(event_payloads, [], fn event_payload, acc ->
+        case Essig.Crud.EventsCrud.create_event(event_payload) do
+          {:ok, event} -> {:cont, [event | acc]}
+          {:error, _} = error -> {:halt, error}
+        end
+      end)
+      |> case do
+        {:error, _} = error -> error
+        events -> Enum.reverse(events)
       end
     end)
-    |> case do
-      {:error, _} = error -> error
-      events -> {:ok, Enum.reverse(events)}
-    end
   end
 
   defp signal_new_events(stream_uuid, count, max_id) do
