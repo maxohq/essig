@@ -15,6 +15,17 @@ defmodule Essig.Event do
       def __essig_event__() do
         unquote(name)
       end
+
+      def new(args \\ %{})
+
+      def new(args) when is_map(args) do
+        struct(__MODULE__, args)
+      end
+
+      def new(args) when is_list(args) do
+        args = Enum.into(args, %{})
+        struct(__MODULE__, args)
+      end
     end
   end
 end
