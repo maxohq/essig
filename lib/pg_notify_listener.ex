@@ -10,10 +10,12 @@ defmodule Essig.PGNotifyListener do
   def start_link(_), do: GenServer.start_link(__MODULE__, [])
 
   def init(_arg) do
+    IO.puts("[Essig.PGNotifyListener] Listening for notifications")
     config = Essig.Repo.config()
     config = Keyword.put(config, :auto_reconnect, true)
     {:ok, pid} = Postgrex.Notifications.start_link(config)
-    Postgrex.Notifications.listen(pid, "new_events")
+    Postgrex.Notifications.listen(pid, "pg-events.new_events")
+
     {:ok, []}
   end
 
@@ -27,6 +29,7 @@ defmodule Essig.PGNotifyListener do
 
   def rebroadcast(map) do
     map = Essig.Helpers.Map.atomize_keys(map)
-    Essig.Pubsub.broadcast("new_events", {:new_events, map})
+    IO.puts("[Essig.PGNotifyListener] rebroadcasting #{inspect(map)}")
+    Essig.Pubsub.broadcast("pg-events.new_events", {:new_events, map})
   end
 end

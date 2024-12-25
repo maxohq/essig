@@ -33,7 +33,7 @@ defmodule Migrations.Migration003 do
                   'snapmin', NEW.snapmin
                 );
 
-                PERFORM pg_notify('new_events', payload::TEXT);
+                PERFORM pg_notify('pg-events.new_events', payload::TEXT);
                 RETURN NEW;
               END;
               $$ LANGUAGE plpgsql;
