@@ -93,15 +93,16 @@ defmodule Essig.Projections.Runner do
   @impl true
   def handle_event({:call, from}, :get_state_data, state, data) do
     IO.puts("Projections.Runner-> get_state_data")
-    {:keep_state_and_data, [{:reply, from, {state, data}}]}
+    actions = [{:reply, from, {state, data}}]
+    {:keep_state_and_data, actions}
   end
 
   def handle_event({:call, from}, {:set_pause_ms, pause_ms}, _state, data) do
     IO.puts("Projections.Runner-> set_pause_ms")
     info(data, "set pause_ms to #{pause_ms}")
 
-    {:keep_state, %Data{data | pause_ms: pause_ms},
-     [{:reply, from, :ok}, {:state_timeout, pause_ms, :paused}]}
+    actions = [{:reply, from, :ok}, {:state_timeout, pause_ms, :paused}]
+    {:keep_state, %Data{data | pause_ms: pause_ms}, actions}
   end
 
   def handle_event({:call, from}, :pause, _state, _data) do
@@ -132,52 +133,10 @@ defmodule Essig.Projections.Runner do
         :internal,
         :read_from_eventstore,
         :bootstrap,
-        data = %Data{row: row, pause_ms: pause_ms, store_max_id: store_max_id}
+        data = %Data{}
       ) do
     IO.puts("Projections.Runner-> read_from_eventstore: bootstrap")
-    multi = Ecto.Multi.new()
-    scope_uuid = Essig.Context.current_scope()
-    events = fetch_events(scope_uuid, row.max_id, 10)
-
-    multi =
-      Enum.reduce(events, multi, fn event, acc_multi ->
-        data.module.handle_event(acc_multi, {event, event.seq})
-      end)
-
-    if length(events) > 0 do
-      last_event = List.last(events)
-
-      info(data, "at #{last_event.id}")
-      # not sure, what to do with response. BUT: projections MUST NEVER fail.
-      {:ok, _multi_results} = Essig.Repo.transaction(multi) |> IO.inspect()
-
-      if last_event.id != store_max_id do
-        # need more events, with a pause
-        actions = [
-          {:next_event, :internal, :paused},
-          {:state_timeout, pause_ms, :paused}
-        ]
-
-        info(data, "paused for #{pause_ms}ms...")
-        row = update_external_state(data, row, %{max_id: last_event.id, seq: last_event.seq})
-        {:keep_state, %Data{data | row: row}, actions}
-      else
-        # finished...
-        info(data, "finished")
-
-        row =
-          update_external_state(data, row, %{
-            max_id: last_event.id,
-            seq: last_event.seq,
-            status: :idle
-          })
-
-        {:next_state, :idle, %Data{data | row: row}}
-      end
-    else
-      row = update_external_state(data, row, %{status: :idle})
-      {:next_state, :idle, %Data{data | row: row}}
-    end
+    Projections.Runner.ReadFromEventStore.run(data)
   end
 
   # resume reading, pause timeout triggered
@@ -201,7 +160,9 @@ defmodule Essig.Projections.Runner do
   end
 
   def handle_event(:internal, :resume, :idle, _) do
-    {:keep_state_and_data, []}
+    # when we resume, its similar to bootstrap
+    # -> we might have missed uknown amount of events, so its same as bootstrapping from zero
+    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
   end
 
   def handle_event(:info, {:new_events, notification}, status, data) do
@@ -295,21 +256,6 @@ defmodule Essig.Projections.Runner do
       Essig.Projections.MetaTable.update(name, args)
       row
     end
-  end
-
-  defp update_external_state(data, row, updates) do
-    Essig.Projections.MetaTable.update(data.name, updates)
-    {:ok, row} = Essig.Crud.ProjectionsCrud.update_projection(row, updates)
-    row
-  end
-
-  defp fetch_events(scope_uuid, max_id, amount) do
-    Essig.Cache.request(
-      {Essig.EventStoreReads, :read_all_stream_forward, [scope_uuid, max_id, amount]},
-      # in theory we can cache them forever, the results will never change
-      # but we let them expire to reduce app memory usage
-      ttl: :timer.minutes(15)
-    )
   end
 
   def info(data, msg) do
