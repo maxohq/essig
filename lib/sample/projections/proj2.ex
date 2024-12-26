@@ -7,6 +7,7 @@ defmodule Sample.Projections.Proj2 do
   def handle_event(multi, {map, index}) do
     Ecto.Multi.run(multi, {:event, index}, fn _repo, _changes ->
       IO.inspect(map.data, label: "index-#{index}")
+      Repo.insert_all("projection_proj2", [%{id: index, data: "OK"}])
       {:ok, 1}
     end)
   end

@@ -132,10 +132,10 @@ defmodule Essig.Projections.Runner do
   def handle_event(
         :internal,
         :read_from_eventstore,
-        :bootstrap,
+        state,
         data = %Data{}
       ) do
-    IO.puts("Projections.Runner-> read_from_eventstore: bootstrap")
+    IO.puts("Projections.Runner-> read_from_eventstore - #{state}")
     Projections.Runner.ReadFromEventStore.run(data)
   end
 
@@ -165,79 +165,13 @@ defmodule Essig.Projections.Runner do
     {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
   end
 
-  def handle_event(:info, {:new_events, notification}, status, data) do
+  def handle_event(:info, {:new_events, notification}, _status, data) do
     IO.puts("HANDLE NEW EVENTS")
     ## we get a notification from the pubsub, that there are new events
-    ## now we need to poll for new events since our last SEQ and send them to the handler module.
-    %{
-      count: count,
-      scope_uuid: scope_uuid,
-      max_id: max_id
-    } = notification
-
-    IO.inspect(notification, label: "notification")
-    IO.inspect(status, label: "status")
-    IO.inspect(data, label: "data")
-    row = data.row
-
-    data_max_id = row.max_id
-    to_fetch = max_id - data_max_id
-    seq = row.seq
-
-    # %{
-    #   row: %{
-    #     projection_uuid: "01940019-225a-76aa-8b24-568a0e0b3ddb",
-    #     id: 12,
-    #     scope_uuid: "01940019-223b-708b-b7e7-baded5ea9341",
-    #     module: "Elixir.Sample.Projections.Proj1",
-    #     max_id: 0,
-    #     seq: 0,
-    #     status: :idle,
-    #     setup_done: false,
-    #     inserted_at: ~U[2024-12-25 23:13:54Z],
-    #     updated_at: ~U[2024-12-25 23:13:54Z]
-    #   }
-    # } = data
-
-    ### FETCH EVENTS
-    events =
-      Essig.Cache.request(
-        {Essig.EventStoreReads, :read_all_stream_forward, [scope_uuid, seq, to_fetch]}
-      )
-
-    IO.inspect(events, label: "events")
-
-    ### UPDATE ACTUAL PROJECTION
-
-    ### UPDATE PROJECTION ROW
-
-    ### UPDATE META TABLE
-
-    # %{
-    # count: 2,
-    # scope_uuid: "0193ffde-63f1-77e3-9a26-0160116b2ba4",
-    # max_id: 4,
-    # stream_uuid: "0193ffde-698e-7bdb-a36b-981643742798",
-    # txid: 10626169}},
-    # :idle,
-    # %Essig.Projections.Data{
-    #  row: %Essig.Schemas.Projection{
-    #   __meta__: #Ecto.Schema.Metadata<:loaded, "essig_projections">,
-    #   projection_uuid: "0193ffde-6427-7bb8-a4c7-6739d78e117c",
-    #   id: 2,
-    #   scope_uuid: "0193ffde-63f1-77e3-9a26-0160116b2ba4",
-    #   module: "Elixir.Sample.Projections.Proj1",
-    #   max_id: 0,
-    #   seq: 0,
-    #   status: :idle,
-    #   setup_done: false,
-    # inserted_at: ~U[2024-12-25 22:09:45Z],
-    # updated_at: ~U[2024-12-25 22:09:45Z]},
-    # name: Sample.Projections.Proj1,
-    # pause_ms: 2,
-    # store_max_id: 0,
-    # module: Sample.Projections.Proj1}
-    {:keep_state_and_data, []}
+    %{max_id: max_id} = notification
+    # We update the max_id to the value from the notification and switch to :read_from_eventstore
+    actions = [{:next_event, :internal, :read_from_eventstore}]
+    {:keep_state, %Data{data | store_max_id: max_id}, actions}
   end
 
   defp fetch_last_record(name) do
