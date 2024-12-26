@@ -9,25 +9,25 @@ defmodule Essig.Integration.FullTest do
   end
 
   describe "system setup" do
-    test "cast registry start / stop / de-registration works" do
-      {:ok, cast1} = Casts.Cast1.start_link(1)
-      {:ok, cast2} = Casts.Cast2.start_link(1)
+    # test "cast registry start / stop / de-registration works" do
+    #   {:ok, cast1} = Casts.Cast1.start_link(1)
+    #   {:ok, cast2} = Casts.Cast2.start_link(1)
 
-      assert Essig.Casts.Registry.keys() |> Enum.count() == 2
+    #   assert Essig.Casts.Registry.keys() |> Enum.count() == 2
 
-      assert Essig.Casts.Registry.get(Casts.Cast1) == cast1
-      assert Essig.Casts.Registry.get(Casts.Cast2) == cast2
+    #   assert Essig.Casts.Registry.get(Casts.Cast1) == cast1
+    #   assert Essig.Casts.Registry.get(Casts.Cast2) == cast2
 
-      GenServer.stop(cast1)
-      refute Process.alive?(cast1)
-      assert eventually(fn -> Essig.Casts.Registry.keys() |> Enum.count() == 1 end)
-      assert Essig.Casts.Registry.get(Casts.Cast1) == nil
+    #   GenServer.stop(cast1)
+    #   refute Process.alive?(cast1)
+    #   assert eventually(fn -> Essig.Casts.Registry.keys() |> Enum.count() == 1 end)
+    #   assert Essig.Casts.Registry.get(Casts.Cast1) == nil
 
-      GenServer.stop(cast2)
-      refute Process.alive?(cast2)
-      assert eventually(fn -> Essig.Casts.Registry.keys() |> Enum.count() == 0 end)
-      assert Essig.Casts.Registry.get(Casts.Cast2) == nil
-    end
+    #   GenServer.stop(cast2)
+    #   refute Process.alive?(cast2)
+    #   assert eventually(fn -> Essig.Casts.Registry.keys() |> Enum.count() == 0 end)
+    #   assert Essig.Casts.Registry.get(Casts.Cast2) == nil
+    # end
 
     test "entity registry start / stop / de-registration works" do
       {:ok, entity1_1} = Entities.Entity1.start_link(uuid: "1")

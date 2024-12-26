@@ -9,7 +9,6 @@ defmodule Essig.Schemas.Event do
     field(:stream_uuid, Ecto.UUID)
     field(:event_type, :string)
 
-    # we are not using Ecto.EctoJsonSerde, since nested serialization does not work properly
     field(:data, Essig.Ecto.EctoErlangBinary)
     field(:meta, Essig.Ecto.EctoErlangBinary)
 

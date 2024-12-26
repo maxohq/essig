@@ -22,7 +22,7 @@ defmodule Migrations.Migration004 do
                   'max_id', NEW.max_id
                 );
 
-                PERFORM pg_notify('new_events', payload::TEXT);
+                PERFORM pg_notify('pg-events.new_events', payload::TEXT);
                 RETURN NEW;
               END;
               $$ LANGUAGE plpgsql;

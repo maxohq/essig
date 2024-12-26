@@ -91,7 +91,7 @@ defmodule Essig.HandlerMetaTest do
   test "query/1 with OR condition" do
     HandlerMeta.init()
     HandlerMeta.set(TestModule1, %{status: :new})
-    HandlerMeta.set(TestModule2, %{status: :ready})
+    HandlerMeta.set(TestModule2, %{status: :idle})
     HandlerMeta.set(TestModule3, %{status: :backfilling})
 
     result = HandlerMeta.query(%{or: [[:=, :status, :new], [:=, :status, :backfilling]]})

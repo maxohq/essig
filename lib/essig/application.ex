@@ -5,15 +5,20 @@ defmodule Essig.Application do
 
   @impl true
   def start(_type, _args) do
+    Ecto.DevLogger.install(Essig.Repo)
+
     children = [
       Essig.Repo,
       Essig.RepoSingleConn,
       {Phoenix.PubSub, name: Essig.PubSub},
       Essig.PGNotifyListener,
-      Essig.Cache,
+      {Essig.Cache, purge_loop: :timer.seconds(1), default_ttl: :timer.seconds(15)},
       {Registry, keys: :unique, name: Essig.Scopes.Registry},
       Essig.Scopes.DynamicSupervisor
     ]
+
+    # dont log GenCache debug messages by default
+    GenCache.Config.log_info()
 
     opts = [strategy: :one_for_one, name: Essig.Supervisor]
     Supervisor.start_link(children, opts)

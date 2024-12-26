@@ -1,7 +1,13 @@
-defmodule Essig.Casts.SeqChecker do
+defmodule Essig.Projections.SeqChecker do
   @moduledoc """
   Checks, that given Cast modules reached certain SEQ value
   """
+
+  import Liveness
+
+  def await(modules, seq, timeout \\ 250) do
+    eventually(fn -> check_reached(modules, seq) == true end, timeout, 1)
+  end
 
   def check_reached(modules, seq) do
     conditions =
@@ -10,7 +16,7 @@ defmodule Essig.Casts.SeqChecker do
       end)
 
     q = %{or: conditions, project: [:key, :seq]}
-    res = Essig.Casts.MetaTable.query(q)
+    res = Essig.Projections.MetaTable.query(q)
     Enum.count(res) == Enum.count(modules)
   end
 
@@ -21,7 +27,7 @@ defmodule Essig.Casts.SeqChecker do
       end)
 
     q = %{or: conditions, project: [:key, :seq, :max_id]}
-    res = Essig.Casts.MetaTable.query(q)
+    res = Essig.Projections.MetaTable.query(q)
     Enum.count(res) == Enum.count(modules)
   end
 end

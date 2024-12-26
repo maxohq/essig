@@ -31,13 +31,23 @@ defmodule Essig.EventStore.AppendToStream do
     end)
     |> Ecto.Multi.run(:update_seq, fn _repo, %{stream: stream, insert_events: insert_events} ->
       last_event = Enum.at(insert_events, -1)
-      Essig.Crud.StreamsCrud.update_stream(stream, %{seq: last_event.seq})
+
+      if last_event do
+        Essig.Crud.StreamsCrud.update_stream(stream, %{seq: last_event.seq})
+      else
+        {:ok, stream}
+      end
     end)
     |> Ecto.Multi.run(:signal_new_events, fn _repo, %{insert_events: insert_events} ->
       last_event = Enum.at(insert_events, -1)
-      max_id = last_event.id
-      count = Enum.count(insert_events)
-      signal_new_events(stream_uuid, count, max_id)
+
+      if last_event do
+        max_id = last_event.id
+        count = Enum.count(insert_events)
+        signal_new_events(stream_uuid, count, max_id)
+      else
+        {:ok, true}
+      end
     end)
   end
 
@@ -80,7 +90,7 @@ defmodule Essig.EventStore.AppendToStream do
         seq: stream.seq + index + 1,
         stream_uuid: stream.stream_uuid,
         stream_type: stream.stream_type,
-        event_type: item.__struct__.__json_serde_alias__(),
+        event_type: item.__struct__.__essig_event__(),
         data: item,
         meta: meta
       }
@@ -89,16 +99,18 @@ defmodule Essig.EventStore.AppendToStream do
   end
 
   defp insert_events(event_payloads) do
-    Enum.reduce_while(event_payloads, [], fn event_payload, acc ->
-      case Essig.Crud.EventsCrud.create_event(event_payload) do
-        {:ok, event} -> {:cont, [event | acc]}
-        {:error, _} = error -> {:halt, error}
+    Repo.transaction(fn ->
+      Enum.reduce_while(event_payloads, [], fn event_payload, acc ->
+        case Essig.Crud.EventsCrud.create_event(event_payload) do
+          {:ok, event} -> {:cont, [event | acc]}
+          {:error, _} = error -> {:halt, error}
+        end
+      end)
+      |> case do
+        {:error, _} = error -> error
+        events -> Enum.reverse(events)
       end
     end)
-    |> case do
-      {:error, _} = error -> error
-      events -> {:ok, Enum.reverse(events)}
-    end
   end
 
   defp signal_new_events(stream_uuid, count, max_id) do

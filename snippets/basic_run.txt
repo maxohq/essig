@@ -1,0 +1,10 @@
+scope_uuid = "0191e654-8d41-7a86-814b-47728a8362d2"
+Essig.Server.start_scope(scope_uuid)
+Essig.Server.start_projections([Sample.Projections.Proj1], pause_ms: 200)
+Essig.Server.start_projections([{Sample.Projections.Proj1, 2}], module: Sample.Projections.Proj1, pause_ms: 50)
+Essig.Server.start_projections([{Sample.Projections.Proj1, 3}], module: Sample.Projections.Proj1, pause_ms: 50)
+
+
+
+Essig.Server.start_projections([{Sample.Projections.Proj1, 4}], module: Sample.Projections.Proj1, pause_ms: 50)
+

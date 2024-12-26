@@ -1,7 +1,7 @@
-defmodule Essig.Crud.CastsCrud do
-  use Essig.Helpers.DryHardWrapper, schema: Essig.Schemas.Cast
+defmodule Essig.Crud.ProjectionsCrud do
+  use Essig.Helpers.DryHardWrapper, schema: Essig.Schemas.Projection
 
-  @resource Dryhard.config(Cast, Repo, "es_casts")
+  @resource Dryhard.config(Projection, Repo, "es_projections")
 
   @tocast [:scope_uuid, :module, :status, :max_id, :seq, :setup_done]
   @toreq [:scope_uuid, :module, :seq]
@@ -23,18 +23,13 @@ defmodule Essig.Crud.CastsCrud do
   Dryhard.change(@resource, &ME.changeset/2)
   Dryhard.delete(@resource)
 
-  def get_cast_by_module(module) when is_binary(module) do
+  def get_projection_by_module(module) when is_binary(module) do
     scope_uuid = Essig.Context.current_scope()
-    Repo.get_by(Essig.Schemas.Cast, module: module, scope_uuid: scope_uuid)
+    Repo.get_by(Essig.Schemas.Projection, module: module, scope_uuid: scope_uuid)
   end
 
-  def get_cast_by_module(module) do
-    get_cast_by_module(Atom.to_string(module))
-  end
-
-  def increment_seq(id, increment) when is_integer(increment) and increment > 0 do
-    from(c in Essig.Schemas.Cast, where: c.id == ^id)
-    |> Repo.update_all(inc: [seq: increment])
+  def get_projection_by_module(module) do
+    get_projection_by_module(Atom.to_string(module))
   end
 
   @doc false
