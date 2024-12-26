@@ -211,8 +211,7 @@ defmodule Essig.Projections.Runner do
     %{
       count: count,
       scope_uuid: scope_uuid,
-      max_id: max_id,
-      stream_uuid: stream_uuid
+      max_id: max_id
     } = notification
 
     IO.inspect(notification, label: "notification")
@@ -247,11 +246,11 @@ defmodule Essig.Projections.Runner do
 
     IO.inspect(events, label: "events")
 
+    ### UPDATE ACTUAL PROJECTION
+
     ### UPDATE PROJECTION ROW
 
     ### UPDATE META TABLE
-
-    ### UPDATE ACTUAL PROJECTION
 
     # %{
     # count: 2,
