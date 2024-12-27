@@ -91,7 +91,7 @@ defmodule Essig.Projections.Runner do
       :ok,
       :bootstrap,
       data,
-      [{:next_event, :internal, :init_storage}, {:next_event, :internal, :read_from_eventstore}]
+      [{:next_event, :internal, :init_storage}, {:next_event, :internal, :load_from_eventstore}]
     }
   end
 
@@ -140,11 +140,11 @@ defmodule Essig.Projections.Runner do
         status: :idle
       })
 
-    # 3. switch to init sequence handling: init_storage + read_from_eventstore
+    # 3. switch to init sequence handling: init_storage + load_from_eventstore
     actions = [
       {:reply, from, :ok},
       {:next_event, :internal, :init_storage},
-      {:next_event, :internal, :read_from_eventstore}
+      {:next_event, :internal, :load_from_eventstore}
     ]
 
     {:next_state, :bootstrap, %Data{data | row: row}, actions}
@@ -158,19 +158,14 @@ defmodule Essig.Projections.Runner do
     :keep_state_and_data
   end
 
-  def handle_event(
-        :internal,
-        :read_from_eventstore,
-        state,
-        data = %Data{}
-      ) do
-    info(data, "read_from_eventstore - #{state}")
+  def handle_event(:internal, :load_from_eventstore, state, data = %Data{}) do
+    info(data, "load_from_eventstore - #{state}")
     Projections.Runner.ReadFromEventStore.run(data)
   end
 
   # resume reading, pause timeout triggered
   def handle_event(:state_timeout, :paused, _, _) do
-    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
+    {:keep_state_and_data, [{:next_event, :internal, :load_from_eventstore}]}
   end
 
   # internal pause event, nothing, timeout will trigger resume
@@ -182,19 +177,19 @@ defmodule Essig.Projections.Runner do
   def handle_event(:internal, :resume, _, _) do
     # when we resume, its similar to bootstrap
     # -> we might have missed uknown amount of events, so its same as bootstrapping from zero
-    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
+    {:keep_state_and_data, [{:next_event, :internal, :load_from_eventstore}]}
   end
 
   ########### EXTERNAL EVENTS, here from PUBSUB subscription
 
   def handle_event(:info, {:new_events, notification}, state, data)
       when state in [:bootstrap, :idle] do
-    IO.puts("HANDLE NEW EVENTS")
+    info(data, "new_events - #{state}")
     ## we get a notification from the pubsub, that there are new events
     %{max_id: max_id} = notification
 
-    # We update the max_id to the value from the notification and switch to :read_from_eventstore internal event handler
-    actions = [{:next_event, :internal, :read_from_eventstore}]
+    # We update the max_id to the value from the notification and switch to :load_from_eventstore internal event handler
+    actions = [{:next_event, :internal, :load_from_eventstore}]
     {:keep_state, %Data{data | store_max_id: max_id}, actions}
   end
 
