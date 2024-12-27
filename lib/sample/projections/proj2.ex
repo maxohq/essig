@@ -4,7 +4,7 @@ defmodule Sample.Projections.Proj2 do
   require Logger
 
   @impl Essig.Projections.Projection
-  def handle_event(multi, data = %Data{}, {event, index}) do
+  def handle_event(multi, data = %Data{}, {_event, index}) do
     multi =
       Ecto.Multi.run(multi, {:event, index}, fn _repo, _changes ->
         # IO.inspect(event.data, label: "index-#{index}")
