@@ -35,7 +35,7 @@ defmodule Essig.Projections.Runner do
   require Logger
 
   alias Essig.Projections.Data
-  alias Projections.Runner.Common
+  alias Essig.Projections.Runner.Common
 
   # Client API
 
@@ -72,7 +72,7 @@ defmodule Essig.Projections.Runner do
   @impl true
   def init(%{name: name, pause_ms: pause_ms, module: module} = data) do
     scope_uuid = Essig.Context.current_scope()
-    info(data, "Init with pause_ms #{pause_ms}")
+    debug(data, "Init with pause_ms #{pause_ms}")
     row = fetch_last_record(name)
     store_max_id = Essig.EventStoreReads.last_id(scope_uuid)
 
@@ -104,14 +104,14 @@ defmodule Essig.Projections.Runner do
   end
 
   def handle_event({:call, from}, {:set_pause_ms, pause_ms}, state, data) do
-    info(data, "set_pause_ms - #{state} - #{pause_ms}")
+    debug(data, "set_pause_ms - #{state} - #{pause_ms}")
 
     actions = [{:reply, from, :ok}, {:state_timeout, pause_ms, :paused}]
     {:keep_state, %Data{data | pause_ms: pause_ms}, actions}
   end
 
   def handle_event({:call, from}, :pause, state, data) do
-    info(data, "pause - #{state}")
+    debug(data, "pause - #{state}")
 
     {:keep_state_and_data,
      [
@@ -123,12 +123,12 @@ defmodule Essig.Projections.Runner do
   end
 
   def handle_event({:call, from}, :resume, state, data) do
-    info(data, "resume - #{state}")
+    debug(data, "resume - #{state}")
     {:keep_state_and_data, [{:reply, from, :ok}, {:next_event, :internal, :resume}]}
   end
 
   def handle_event({:call, from}, :reset, state, data) do
-    info(data, "reset - #{state}")
+    debug(data, "reset - #{state}")
 
     # 1. call the projection-specific logic
     data.module.handle_reset(data)
@@ -153,14 +153,14 @@ defmodule Essig.Projections.Runner do
   ########### `internal` EVENTS handlers
 
   def handle_event(:internal, :init_storage, :bootstrap, data = %Data{}) do
-    info(data, "init_storage - #{:bootstrap}")
+    debug(data, "init_storage - #{:bootstrap}")
     data.module.handle_init_storage(data)
     :keep_state_and_data
   end
 
   def handle_event(:internal, :load_from_eventstore, state, data = %Data{}) do
-    info(data, "load_from_eventstore - #{state}")
-    Projections.Runner.ReadFromEventStore.run(data)
+    debug(data, "load_from_eventstore - #{state}")
+    Essig.Projections.Runner.ReadFromEventStore.run(data)
   end
 
   # resume reading, pause timeout triggered
@@ -184,7 +184,7 @@ defmodule Essig.Projections.Runner do
 
   def handle_event(:info, {:new_events, notification}, state, data)
       when state in [:bootstrap, :idle] do
-    info(data, "new_events - #{state}")
+    debug(data, "new_events - #{state}")
     ## we get a notification from the pubsub, that there are new events
     %{max_id: max_id} = notification
 
@@ -213,7 +213,7 @@ defmodule Essig.Projections.Runner do
     end
   end
 
-  def info(data, msg) do
-    Logger.info("Projections.Runner-> #{inspect(data.name)}: #{msg}")
+  def debug(data, msg) do
+    Logger.debug("Projections.Runner-> #{inspect(data.name)}: #{msg}")
   end
 end

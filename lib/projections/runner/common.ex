@@ -1,4 +1,4 @@
-defmodule Projections.Runner.Common do
+defmodule Essig.Projections.Runner.Common do
   alias Essig.Projections.Data
 
   def fetch_events(scope_uuid, max_id, amount) do
