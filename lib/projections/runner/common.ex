@@ -4,9 +4,7 @@ defmodule Projections.Runner.Common do
   def fetch_events(scope_uuid, max_id, amount) do
     Essig.Cache.request(
       {Essig.EventStoreReads, :read_all_stream_forward, [scope_uuid, max_id, amount]},
-      # in theory we can cache them forever, the results will never change
-      # but we let them expire to reduce app memory usage
-      ttl: :timer.seconds(2)
+      ttl: Essig.Config.events_cache_ttl()
     )
   end
 
