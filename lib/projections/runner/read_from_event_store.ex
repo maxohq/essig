@@ -17,7 +17,7 @@ defmodule Projections.Runner.ReadFromEventStore do
     if length(events) > 0 do
       last_event = List.last(events)
 
-      info(data, "at #{last_event.id}")
+      info(data, "CURRENT MAX ID #{last_event.id}")
       # not sure, what to do with response. BUT: projections MUST NEVER fail.
       {:ok, _multi_results} = Essig.Repo.transaction(multi) |> IO.inspect()
 
@@ -48,6 +48,7 @@ defmodule Projections.Runner.ReadFromEventStore do
         {:next_state, :idle, %Data{data | row: row}}
       end
     else
+      info(data, "EMPTY EVENTS")
       row = Common.update_external_state(data, row, %{status: :idle})
       {:next_state, :idle, %Data{data | row: row}}
     end

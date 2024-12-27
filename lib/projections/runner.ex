@@ -35,6 +35,7 @@ defmodule Essig.Projections.Runner do
   require Logger
 
   alias Essig.Projections.Data
+  alias Projections.Runner.Common
 
   # Client API
 
@@ -60,6 +61,10 @@ defmodule Essig.Projections.Runner do
 
   def set_pause_ms(name, pause_ms) do
     GenStateMachine.call(via_tuple(name), {:set_pause_ms, pause_ms})
+  end
+
+  def reset(name) do
+    GenStateMachine.call(via_tuple(name), :reset)
   end
 
   # Callbacks
@@ -92,21 +97,19 @@ defmodule Essig.Projections.Runner do
 
   @impl true
   def handle_event({:call, from}, :get_state_data, state, data) do
-    IO.puts("Projections.Runner-> get_state_data")
     actions = [{:reply, from, {state, data}}]
     {:keep_state_and_data, actions}
   end
 
-  def handle_event({:call, from}, {:set_pause_ms, pause_ms}, _state, data) do
-    IO.puts("Projections.Runner-> set_pause_ms")
-    info(data, "set pause_ms to #{pause_ms}")
+  def handle_event({:call, from}, {:set_pause_ms, pause_ms}, state, data) do
+    info(data, "set_pause_ms - #{state} - #{pause_ms}")
 
     actions = [{:reply, from, :ok}, {:state_timeout, pause_ms, :paused}]
     {:keep_state, %Data{data | pause_ms: pause_ms}, actions}
   end
 
-  def handle_event({:call, from}, :pause, _state, _data) do
-    IO.puts("Projections.Runner-> pause")
+  def handle_event({:call, from}, :pause, state, data) do
+    info(data, "pause - #{state}")
 
     {:keep_state_and_data,
      [
@@ -117,15 +120,33 @@ defmodule Essig.Projections.Runner do
      ]}
   end
 
-  def handle_event({:call, from}, :resume, _state, _data) do
-    IO.puts("Projections.Runner-> resume")
+  def handle_event({:call, from}, :resume, state, data) do
+    info(data, "resume - #{state}")
     {:keep_state_and_data, [{:reply, from, :ok}, {:next_event, :internal, :resume}]}
   end
 
+  def handle_event({:call, from}, :reset, state, data) do
+    info(data, "reset - #{state}")
+    data.module.handle_reset(data)
+
+    row =
+      Common.update_external_state(data, data.row, %{
+        max_id: 0,
+        status: :idle
+      })
+
+    actions = [
+      {:reply, from, :ok},
+      {:next_event, :internal, :init_storage},
+      {:next_event, :internal, :read_from_eventstore}
+    ]
+
+    {:next_state, :bootstrap, %Data{data | row: row}, actions}
+  end
+
   def handle_event(:internal, :init_storage, :bootstrap, data = %Data{}) do
-    IO.puts("Projections.Runner-> init_storage: bootstrap")
-    info(data, "INIT STORAGE")
-    data.module.init_storage(data)
+    info(data, "init_storage - #{:bootstrap}")
+    data.module.handle_init_storage(data)
     :keep_state_and_data
   end
 
@@ -135,18 +156,18 @@ defmodule Essig.Projections.Runner do
         state,
         data = %Data{}
       ) do
-    IO.puts("Projections.Runner-> read_from_eventstore - #{state}")
+    info(data, "read_from_eventstore - #{state}")
     Projections.Runner.ReadFromEventStore.run(data)
   end
 
   # resume reading, pause timeout triggered
-  def handle_event(:state_timeout, :paused, :bootstrap, _) do
+  def handle_event(:state_timeout, :paused, _, _) do
     {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
   end
 
   # resume reading, pause timeout triggered
   def handle_event(:state_timeout, :paused, :idle, _) do
-    {:keep_state_and_data, []}
+    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
   end
 
   # internal pause event, nothing, timeout will trigger resume
@@ -165,7 +186,8 @@ defmodule Essig.Projections.Runner do
     {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
   end
 
-  def handle_event(:info, {:new_events, notification}, _status, data) do
+  def handle_event(:info, {:new_events, notification}, state, data)
+      when state in [:bootstrap, :idle] do
     IO.puts("HANDLE NEW EVENTS")
     ## we get a notification from the pubsub, that there are new events
     %{max_id: max_id} = notification
@@ -193,6 +215,6 @@ defmodule Essig.Projections.Runner do
   end
 
   def info(data, msg) do
-    Logger.info("Projection #{inspect(data.name)}: #{msg}")
+    Logger.info("Projections.Runner-> #{inspect(data.name)}: #{msg}")
   end
 end

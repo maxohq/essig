@@ -10,18 +10,6 @@ defmodule Projections.Runner.Common do
     )
   end
 
-  ## we cache the call to the latest event ID for 1 second
-  def max_events_id() do
-    max_events_id(Essig.Context.current_scope())
-  end
-
-  def max_events_id(scope_uuid) do
-    Essig.Cache.request(
-      {Essig.EventStoreReads, :last_id, [scope_uuid]},
-      ttl: :timer.seconds(1)
-    )
-  end
-
   @doc """
   Update the the projections TABLE row + MetaTable entry
   """

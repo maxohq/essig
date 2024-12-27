@@ -1,5 +1,6 @@
 defmodule Essig.Projections.Projection do
-  @callback init_storage(Essig.Projections.Data.t()) :: :ok | {:error, any()}
+  @callback handle_init_storage(Essig.Projections.Data.t()) :: :ok | {:error, any()}
+  @callback handle_reset(Essig.Projections.Data.t()) :: :ok | {:error, any()}
   @callback handle_event(Ecto.Multi.t(), {map(), number()}) :: Ecto.Multi.t()
 
   defmacro __using__(_opts) do
@@ -8,9 +9,11 @@ defmodule Essig.Projections.Projection do
 
       alias Essig.Projections.Data
 
-      def init_storage(_), do: :ok
+      def handle_init_storage(_), do: :ok
+      def handle_reset(_), do: :ok
 
-      defoverridable init_storage: 1
+      defoverridable handle_init_storage: 1
+      defoverridable handle_reset: 1
     end
   end
 end

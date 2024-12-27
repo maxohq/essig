@@ -15,9 +15,16 @@ defmodule Sample.Projections.Proj1 do
   end
 
   @impl Essig.Projections.Projection
-  def init_storage(data = %Data{}) do
+  def handle_init_storage(data = %Data{}) do
     Logger.info("RUNNING INIT STORAGE for #{__MODULE__} with name #{inspect(data.name)}")
     Repo.query("create table if not exists projection_proj1 (id integer, data text)")
+    :ok
+  end
+
+  @impl Essig.Projections.Projection
+  def handle_reset(data = %Data{}) do
+    Logger.info("RUNNING RESET for #{__MODULE__} with name #{inspect(data.name)}")
+    Repo.query("drop table if exists projection_proj1")
     :ok
   end
 end
