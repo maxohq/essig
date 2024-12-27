@@ -6,7 +6,7 @@ defmodule Projections.Runner.Common do
       {Essig.EventStoreReads, :read_all_stream_forward, [scope_uuid, max_id, amount]},
       # in theory we can cache them forever, the results will never change
       # but we let them expire to reduce app memory usage
-      ttl: :timer.minutes(15)
+      ttl: :timer.seconds(2)
     )
   end
 
