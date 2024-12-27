@@ -7,15 +7,18 @@ defmodule Essig.Projections.RunnerTest do
     require Logger
 
     @impl Essig.Projections.Projection
-    def handle_event(multi, {map, seq}) do
-      Ecto.Multi.run(multi, {:event, seq}, fn _repo, _changes ->
-        IO.inspect(map.data, label: "seq-#{seq}")
-        {:ok, 1}
-      end)
+    def handle_event(multi, data, {map, seq}) do
+      multi =
+        Ecto.Multi.run(multi, {:event, seq}, fn _repo, _changes ->
+          IO.inspect(map.data, label: "seq-#{seq}")
+          {:ok, 1}
+        end)
+
+      {multi, data}
     end
 
     @impl Essig.Projections.Projection
-    def init_storage(data = %Data{}) do
+    def handle_init_storage(data = %Data{}) do
       Logger.info("RUNNING INIT STORAGE for #{__MODULE__} with name #{inspect(data.name)}")
       Repo.query("create table if not exists #{table_name(data)} (id integer, data text)")
       :ok
