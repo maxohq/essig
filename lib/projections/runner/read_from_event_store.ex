@@ -3,11 +3,13 @@ defmodule Projections.Runner.ReadFromEventStore do
   alias Projections.Runner.Common
   require Logger
 
-  def run(data = %Data{row: row, pause_ms: pause_ms, store_max_id: store_max_id}) do
+  def run(data = %Data{row: row, pause_ms: pause_ms, store_max_id: store_max_id} = data) do
+    IO.inspect(data, label: "ReadFromEventStore - data")
     scope_uuid = Essig.Context.current_scope()
     amount_of_events_per_batch = 10
 
     events = Common.fetch_events(scope_uuid, row.max_id, amount_of_events_per_batch)
+    IO.inspect(events, label: "ReadFromEventStore - EVENTS")
 
     multi =
       Enum.reduce(events, Ecto.Multi.new(), fn event, acc_multi ->

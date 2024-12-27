@@ -165,22 +165,13 @@ defmodule Essig.Projections.Runner do
     {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
   end
 
-  # resume reading, pause timeout triggered
-  def handle_event(:state_timeout, :paused, :idle, _) do
-    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
-  end
-
   # internal pause event, nothing, timeout will trigger resume
   def handle_event(:internal, :paused, _, %{name: _name}) do
     :keep_state_and_data
   end
 
   # resume reading, extenal resume event
-  def handle_event(:internal, :resume, :bootstrap, _) do
-    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
-  end
-
-  def handle_event(:internal, :resume, :idle, _) do
+  def handle_event(:internal, :resume, _, _) do
     # when we resume, its similar to bootstrap
     # -> we might have missed uknown amount of events, so its same as bootstrapping from zero
     {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
