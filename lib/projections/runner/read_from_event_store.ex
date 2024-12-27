@@ -18,7 +18,7 @@ defmodule Essig.Projections.Runner.ReadFromEventStore do
 
       debug(data, "CURRENT MAX ID #{last_event.id}")
       # not sure, what to do with response. BUT: projections MUST NEVER fail.
-      {:ok, _multi_results} = Essig.Repo.transaction(multi) |> IO.inspect()
+      {:ok, _multi_results} = Essig.Repo.transaction(multi)
 
       if last_event.id != store_max_id do
         debug(data, "paused for #{pause_ms}ms...")
