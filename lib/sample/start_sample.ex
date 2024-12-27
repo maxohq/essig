@@ -12,6 +12,18 @@ defmodule Sample.StartSample do
     ## insert events
     events = [
       Sample.TestReports.Events.Event1.new(payload: "hello"),
+      Sample.TestReports.Events.Event2.new(ops: [%{op: "a"}]),
+      Sample.TestReports.Events.Event1.new(payload: "hello"),
+      Sample.TestReports.Events.Event2.new(ops: [%{op: "a"}]),
+      Sample.TestReports.Events.Event1.new(payload: "hello"),
+      Sample.TestReports.Events.Event2.new(ops: [%{op: "a"}]),
+      Sample.TestReports.Events.Event1.new(payload: "hello"),
+      Sample.TestReports.Events.Event2.new(ops: [%{op: "a"}]),
+      Sample.TestReports.Events.Event1.new(payload: "hello"),
+      Sample.TestReports.Events.Event2.new(ops: [%{op: "a"}]),
+      Sample.TestReports.Events.Event1.new(payload: "hello"),
+      Sample.TestReports.Events.Event2.new(ops: [%{op: "a"}]),
+      Sample.TestReports.Events.Event1.new(payload: "hello"),
       Sample.TestReports.Events.Event2.new(ops: [%{op: "a"}])
     ]
 

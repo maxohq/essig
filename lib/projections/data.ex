@@ -4,8 +4,9 @@ defmodule Essig.Projections.Data do
           name: atom() | nil,
           pause_ms: non_neg_integer(),
           store_max_id: non_neg_integer(),
-          module: module() | nil
+          module: module() | nil,
+          private: map()
         }
 
-  defstruct row: %{}, name: nil, pause_ms: 0, store_max_id: 0, module: nil
+  defstruct row: %{}, name: nil, pause_ms: 0, store_max_id: 0, module: nil, private: %{}
 end

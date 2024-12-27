@@ -91,9 +91,11 @@ defmodule Essig.Projections.Runner do
       :ok,
       :bootstrap,
       data,
-      [{:next_event, :internal, :init_storage}, {:next_event, :internal, :read_from_eventstore}]
+      [{:next_event, :internal, :init_storage}, {:next_event, :internal, :load_from_eventstore}]
     }
   end
+
+  ########### `call` EVENTS handlers -> correspond to GenStateMachine.call on the process
 
   @impl true
   def handle_event({:call, from}, :get_state_data, state, data) do
@@ -127,22 +129,28 @@ defmodule Essig.Projections.Runner do
 
   def handle_event({:call, from}, :reset, state, data) do
     info(data, "reset - #{state}")
+
+    # 1. call the projection-specific logic
     data.module.handle_reset(data)
 
+    # 2. update the projection state to start from max_id = 0
     row =
       Common.update_external_state(data, data.row, %{
         max_id: 0,
         status: :idle
       })
 
+    # 3. switch to init sequence handling: init_storage + load_from_eventstore
     actions = [
       {:reply, from, :ok},
       {:next_event, :internal, :init_storage},
-      {:next_event, :internal, :read_from_eventstore}
+      {:next_event, :internal, :load_from_eventstore}
     ]
 
     {:next_state, :bootstrap, %Data{data | row: row}, actions}
   end
+
+  ########### `internal` EVENTS handlers
 
   def handle_event(:internal, :init_storage, :bootstrap, data = %Data{}) do
     info(data, "init_storage - #{:bootstrap}")
@@ -150,24 +158,14 @@ defmodule Essig.Projections.Runner do
     :keep_state_and_data
   end
 
-  def handle_event(
-        :internal,
-        :read_from_eventstore,
-        state,
-        data = %Data{}
-      ) do
-    info(data, "read_from_eventstore - #{state}")
+  def handle_event(:internal, :load_from_eventstore, state, data = %Data{}) do
+    info(data, "load_from_eventstore - #{state}")
     Projections.Runner.ReadFromEventStore.run(data)
   end
 
   # resume reading, pause timeout triggered
   def handle_event(:state_timeout, :paused, _, _) do
-    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
-  end
-
-  # resume reading, pause timeout triggered
-  def handle_event(:state_timeout, :paused, :idle, _) do
-    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
+    {:keep_state_and_data, [{:next_event, :internal, :load_from_eventstore}]}
   end
 
   # internal pause event, nothing, timeout will trigger resume
@@ -176,25 +174,26 @@ defmodule Essig.Projections.Runner do
   end
 
   # resume reading, extenal resume event
-  def handle_event(:internal, :resume, :bootstrap, _) do
-    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
-  end
-
-  def handle_event(:internal, :resume, :idle, _) do
+  def handle_event(:internal, :resume, _, _) do
     # when we resume, its similar to bootstrap
     # -> we might have missed uknown amount of events, so its same as bootstrapping from zero
-    {:keep_state_and_data, [{:next_event, :internal, :read_from_eventstore}]}
+    {:keep_state_and_data, [{:next_event, :internal, :load_from_eventstore}]}
   end
+
+  ########### EXTERNAL EVENTS, here from PUBSUB subscription
 
   def handle_event(:info, {:new_events, notification}, state, data)
       when state in [:bootstrap, :idle] do
-    IO.puts("HANDLE NEW EVENTS")
+    info(data, "new_events - #{state}")
     ## we get a notification from the pubsub, that there are new events
     %{max_id: max_id} = notification
-    # We update the max_id to the value from the notification and switch to :read_from_eventstore
-    actions = [{:next_event, :internal, :read_from_eventstore}]
+
+    # We update the max_id to the value from the notification and switch to :load_from_eventstore internal event handler
+    actions = [{:next_event, :internal, :load_from_eventstore}]
     {:keep_state, %Data{data | store_max_id: max_id}, actions}
   end
+
+  ########### HELPERS
 
   defp fetch_last_record(name) do
     case res = Essig.Crud.ProjectionsCrud.get_projection_by_module(name) do
