@@ -8,6 +8,11 @@ defmodule Sample.StartSample do
     )
   end
 
+  def reset do
+    Essig.Projections.Runner.reset(Sample.Projections.Proj1)
+    Essig.Projections.Runner.reset(Sample.Projections.Proj2)
+  end
+
   def add_events do
     ## insert events
     events = [
