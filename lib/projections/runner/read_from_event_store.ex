@@ -11,9 +11,11 @@ defmodule Projections.Runner.ReadFromEventStore do
     events = Common.fetch_events(scope_uuid, row.max_id, amount_of_events_per_batch)
     IO.inspect(events, label: "ReadFromEventStore - EVENTS")
 
-    multi =
-      Enum.reduce(events, Ecto.Multi.new(), fn event, acc_multi ->
-        data.module.handle_event(acc_multi, {event, event.id})
+    multi_tuple = {Ecto.Multi.new(), data}
+
+    {multi, data} =
+      Enum.reduce(events, multi_tuple, fn event, {acc_multi, acc_data} ->
+        data.module.handle_event(acc_multi, acc_data, {event, event.id})
       end)
 
     if length(events) > 0 do

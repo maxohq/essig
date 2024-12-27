@@ -1,17 +1,19 @@
 defmodule Sample.Projections.Proj1 do
   use Essig.Projections.Projection
+  alias Essig.Projections.Data
   use Essig.Repo
   require Logger
 
   @impl Essig.Projections.Projection
-  def handle_event(multi, {event, _index}) do
-    index = event.id
+  def handle_event(multi, data = %Data{}, {event, index}) do
+    multi =
+      Ecto.Multi.run(multi, {:event, index}, fn _repo, _changes ->
+        IO.inspect(event.data, label: "index-#{index}")
+        Repo.insert_all("projection_proj1", [%{id: index, data: "OK"}])
+        {:ok, 1}
+      end)
 
-    Ecto.Multi.run(multi, {:event, index}, fn _repo, _changes ->
-      IO.inspect(event.data, label: "index-#{index}")
-      Repo.insert_all("projection_proj1", [%{id: index, data: "OK"}])
-      {:ok, 1}
-    end)
+    {multi, data}
   end
 
   @impl Essig.Projections.Projection
