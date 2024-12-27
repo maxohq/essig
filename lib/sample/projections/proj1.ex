@@ -1,4 +1,14 @@
 defmodule Sample.Projections.Proj1 do
+  @moduledoc """
+
+  ```elixir
+  ## reset projection
+  iex> Essig.Projections.Runner.reset(Sample.Projections.Proj1)
+
+  ## fetch projection state
+  iex> Essig.Projections.Runner.get_state_data(Sample.Projections.Proj1)
+  ```
+  """
   use Essig.Projections.Projection
   alias Essig.Projections.Data
   use Essig.Repo
@@ -12,6 +22,11 @@ defmodule Sample.Projections.Proj1 do
         Repo.insert_all("projection_proj1", [%{id: index, data: "OK"}])
         {:ok, 1}
       end)
+
+    # update projection specific private data
+    private = data.private
+    private = Map.put(private, {:index, index}, true)
+    data = %Data{data | private: private}
 
     {multi, data}
   end
