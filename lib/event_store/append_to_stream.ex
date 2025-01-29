@@ -1,5 +1,6 @@
 defmodule Essig.EventStore.AppendToStream do
   use Essig.Repo
+  require Logger
 
   def run(stream_uuid, stream_type, expected_seq, events) do
     # To ensure sequential inserts only, we use locking.
@@ -40,6 +41,7 @@ defmodule Essig.EventStore.AppendToStream do
     end)
     |> Ecto.Multi.run(:signal_new_events, fn _repo, %{insert_events: insert_events} ->
       last_event = Enum.at(insert_events, -1)
+      Logger.debug("AppendToStream: [signal_new_events] - last_event: #{inspect(last_event)}")
 
       if last_event do
         max_id = last_event.id

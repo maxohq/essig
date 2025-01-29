@@ -193,6 +193,31 @@ defmodule Essig.Projections.Runner do
     {:keep_state, %Data{data | store_max_id: max_id}, actions}
   end
 
+  ### ALSO notify on termination!
+  @impl GenStateMachine
+  def terminate(reason, state, data) do
+    require Logger
+
+    Logger.warning("""
+    Projection Runner terminated!
+    Projection: #{inspect(data.name)}
+    Reason: #{inspect(reason)}
+    State: #{inspect(state)}
+    Last known max_id: #{inspect(data.row.max_id)}
+    """)
+
+    # Optionally update the projection status to indicate abnormal shutdown
+    if reason not in [:normal, :shutdown] do
+      Essig.Projections.Runner.Common.update_external_state(
+        data,
+        data.row,
+        %{status: :blocked}
+      )
+    end
+
+    :ok
+  end
+
   ########### HELPERS
 
   defp fetch_last_record(name) do
