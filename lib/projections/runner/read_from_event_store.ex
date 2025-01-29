@@ -3,7 +3,7 @@ defmodule Essig.Projections.Runner.ReadFromEventStore do
   alias Essig.Projections.Runner.Common
   require Logger
 
-  def run(data = %Data{row: row, pause_ms: pause_ms, store_max_id: store_max_id} = data) do
+  def run(%Data{row: row, pause_ms: pause_ms, store_max_id: store_max_id} = data) do
     scope_uuid = Essig.Context.current_scope()
     events = Common.fetch_events(scope_uuid, row.max_id, Essig.Config.events_per_batch())
     multi_tuple = {Ecto.Multi.new(), data}
